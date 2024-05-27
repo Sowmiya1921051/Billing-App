@@ -32,7 +32,7 @@ function OrderedListImages() {
     setOrderedImages(orderedImagesFromStorage);
   }, []);
 
-  const handlePrint = (imageUrl, id) => {
+  const handlePrint = async (imageUrl, id) => {
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
       <div>
@@ -45,12 +45,26 @@ function OrderedListImages() {
     const updatedOrderedImages = [...orderedImages, id];
     setOrderedImages(updatedOrderedImages);
     localStorage.setItem('orderedImages', JSON.stringify(updatedOrderedImages));
+
+    // Update order status to 'Ordered'
+    try {
+      await axios.put(`http://localhost:5000/api/orderedList/${id}`, { status: 'Ordered' });
+    } catch (error) {
+      console.error('Error updating order status:', error);
+    }
   };
 
-  const handleCancel = (id) => {
+  const handleCancel = async (id) => {
     const updatedOrderedImages = [...orderedImages, id];
     setOrderedImages(updatedOrderedImages);
     localStorage.setItem('orderedImages', JSON.stringify(updatedOrderedImages));
+
+    // Update order status to 'Cancelled'
+    try {
+      await axios.put(`http://localhost:5000/api/orderedList/${id}`, { status: 'Cancelled' });
+    } catch (error) {
+      console.error('Error updating order status:', error);
+    }
   };
 
   if (loading) {

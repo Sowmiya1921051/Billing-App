@@ -56,10 +56,49 @@ const Dish = mongoose.model('Dish', DishSchema);
 // Define OrderList model
 const OrderListSchema = new mongoose.Schema({
   imageUrl: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: String, default: getCurrentDateTime },
+  status: { type: String, enum: ['Ordered', 'Cancelled'], default: 'Ordered' } // Add status field with default value 'Ordered'
 });
 
 const OrderList = mongoose.model('OrderList', OrderListSchema);
+
+// Function to get current date and time in the desired format
+function getCurrentDateTime() {
+  let date_time = new Date();
+  let date = ("0" + date_time.getDate()).slice(-2);
+  let month = ("0" + (date_time.getMonth() + 1)).slice(-2);
+  let year = date_time.getFullYear();
+  let hours = ("0" + date_time.getHours()).slice(-2);
+  let minutes = ("0" + date_time.getMinutes()).slice(-2);
+  let seconds = ("0" + date_time.getSeconds()).slice(-2);
+
+  return `${year}-${month}-${date} ${hours}:${minutes}:${seconds}`;
+}
+
+// Update order status route
+app.put('/api/orderedList/:id', async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const { status } = req.body;
+
+    // Find the order by ID
+    const order = await OrderList.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    // Update the order status
+    order.status = status;
+    await order.save();
+
+    console.log('Order status updated successfully:', order);
+    res.json({ success: true, message: 'Order status updated successfully', order });
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    res.status(500).json({ success: false, message: 'Error updating order status' });
+  }
+});
+
 
 // Routes
 app.post('/api/dishes', upload.single('image'), async (req, res) => {
@@ -131,6 +170,8 @@ app.get('/api/orderedList', async (req, res) => {
     res.status(500).json({ success: false, message: 'Error fetching order list images' }); // Send an error response if fetching fails
   }
 });
+
+
 
 
 // Serve static files (images) from the 'uploads' directory

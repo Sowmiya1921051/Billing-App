@@ -1,30 +1,26 @@
-import  { useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import { toPng } from 'html-to-image';
 
-// eslint-disable-next-line react/prop-types
 const OrderSidebar = ({ orders }) => {
   const [submitted, setSubmitted] = useState(false);
   const [imageUrl, setImageUrl] = useState(null);
-  const orderListRef = useRef(null);
+  const orderTableRef = useRef(null);
 
-  // Function to capture the menu section as an image
   const handleCapture = async () => {
-    if (orderListRef.current === null) {
+    if (orderTableRef.current === null) {
       return;
     }
-    const dataUrl = await toPng(orderListRef.current);
+    const dataUrl = await toPng(orderTableRef.current);
     setImageUrl(dataUrl);
     return dataUrl;
   };
 
-  // Function to handle combined capture and submit actions
   const handleCombinedFunctions = async () => {
     const dataUrl = await handleCapture();
     return dataUrl;
   };
 
-  // Function to handle order submission
   const handleSubmit = async () => {
     setSubmitted(true);
     try {
@@ -45,22 +41,63 @@ const OrderSidebar = ({ orders }) => {
     }
   };
 
+  // Calculate total price without GST
+  const calculateTotalPrice = () => {
+    let totalPrice = 0;
+    Object.values(orders).forEach(order => {
+      totalPrice += order.price * order.count;
+    });
+    return totalPrice.toFixed(2);
+  };
+
+  // Calculate total price with GST
+  const calculateTotalPriceWithGST = () => {
+    const totalPrice = parseFloat(calculateTotalPrice());
+    // Assuming GST rate is 18%
+    const gstRate = 0.18;
+    const totalPriceWithGST = totalPrice * (1 + gstRate);
+    return totalPriceWithGST.toFixed(2);
+  };
+
   return (
     <div className="w-64 bg-white shadow-lg p-4 fixed right-0 top-0 h-full overflow-y-auto">
       <h2 className="text-2xl font-bold mb-4">Your Orders</h2>
-      <ul ref={orderListRef}>
-        {Object.keys(orders).length === 0 ? (
-          <p>No orders yet.</p>
-        ) : (
-          Object.entries(orders).map(([id, order]) => (
-            <li key={id} className="mb-4">
-              <h3 className="text-lg font-semibold">{order.name}</h3>
-              <p className="text-gray-600">Quantity: {order.count}</p>
-              <p className="text-gray-600">Total Price: ${(order.price * order.count).toFixed(2)}</p>
-            </li>
-          ))
-        )}
-      </ul>
+      <div ref={orderTableRef}>
+        <div className="mb-4 text-center">
+          <h3 className="text-xl font-bold">Restaurant Name</h3>
+          <p>123 Main Street, City, Country</p>
+          <p>Contact: +123 456 7890</p>
+        </div>
+        <table className="w-full">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Quantity</th>
+              <th>Total Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.keys(orders).length === 0 ? (
+              <tr>
+                <td colSpan="3">No orders yet.</td>
+              </tr>
+            ) : (
+              Object.entries(orders).map(([id, order]) => (
+                <tr key={id} className='text-center'>
+                  <td>{order.name}</td>
+                  <td>{order.count}</td>
+                  <td>${(order.price * order.count).toFixed(2)}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+        <div className="mt-4 text-center">
+        <p className="font-semibold">Total Price:- ${calculateTotalPrice()}</p>
+        <p className="font-semibold">GST Price:- ${calculateTotalPriceWithGST()}</p>
+      </div>
+      </div>
+    
       <button
         onClick={handleSubmit}
         className="bg-blue-500 text-white px-4 py-2 rounded mt-4"

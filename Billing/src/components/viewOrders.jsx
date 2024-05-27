@@ -35,7 +35,7 @@ function DishList() {
   const handleIncreasePrice = (id) => {
     setPrices(prevPrices => ({
       ...prevPrices,
-      [id]: prevPrices[id] * 2
+      [id]: prevPrices[id] 
     }));
     setCounters(prevCounters => ({
       ...prevCounters,
