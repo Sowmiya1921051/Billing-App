@@ -121,6 +121,18 @@ app.get('/api/dishes', async (req, res) => {
   }
 });
 
+// GET all order list images
+app.get('/api/orderedList', async (req, res) => {
+  try {
+    const orderListImages = await OrderList.find(); // Fetch all order list images from the database
+    res.json(orderListImages); // Send the fetched order list images as a JSON response
+  } catch (error) {
+    console.error('Error fetching order list images:', error); // Log any errors that occur during fetching
+    res.status(500).json({ success: false, message: 'Error fetching order list images' }); // Send an error response if fetching fails
+  }
+});
+
+
 // Serve static files (images) from the 'uploads' directory
 app.use('/uploads', express.static('uploads'));
 

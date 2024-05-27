@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react';
+import  { useState, useRef } from 'react';
 import axios from 'axios';
 import { toPng } from 'html-to-image';
 
+// eslint-disable-next-line react/prop-types
 const OrderSidebar = ({ orders }) => {
   const [submitted, setSubmitted] = useState(false);
   const [imageUrl, setImageUrl] = useState(null);
