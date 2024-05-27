@@ -1,7 +1,7 @@
-// AddDishForm.jsx
-import  { useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
-import {Link} from 'react-router-dom'
+import { Link } from 'react-router-dom';
+
 const AddDishForm = () => {
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
@@ -22,7 +22,6 @@ const AddDishForm = () => {
     try {
       await axios.post('http://localhost:5000/api/dishes', formData, {
         headers: {
-          
           'Content-Type': 'multipart/form-data'
         }
       });
@@ -37,24 +36,44 @@ const AddDishForm = () => {
   };
 
   return (
-    <div>
-      <h2>Add Dish</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block">Name:</label>
-          <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="border rounded px-2 py-1" />
-        </div>
-        <div>
-          <label className="block">Original Price:</label>
-          <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} className="border rounded px-2 py-1" />
-        </div>
-        <div>
-          <label className="block">Image:</label>
-          <input type="file" onChange={handleImageChange} className="border rounded px-2 py-1" />
-        </div>
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">Add Dish</button>
-      </form>
-      <Link to='/orders' type="submit" className="bg-green-500 text-white px-4 py-2 rounded mt-10 p-10">View Orders</Link>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
+        <h2 className="text-2xl mb-6 text-center">Add Dish</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block">Name:</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="border rounded px-2 py-1 w-full"
+            />
+          </div>
+          <div>
+            <label className="block">Original Price:</label>
+            <input
+              type="number"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              className="border rounded px-2 py-1 w-full"
+            />
+          </div>
+          <div>
+            <label className="block">Image:</label>
+            <input
+              type="file"
+              onChange={handleImageChange}
+              className="border rounded px-2 py-1 w-full"
+            />
+          </div>
+          <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded w-full">
+            Add Dish
+          </button>
+        </form>
+        <Link to="/orders" className="bg-green-500 text-white px-4 py-2 rounded mt-4 block text-center">
+          View Orders
+        </Link>
+      </div>
     </div>
   );
 };

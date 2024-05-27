@@ -9,10 +9,10 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Ensure the uploads directory exists
-const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
+// Ensure the orderedList directory exists
+const orderedListDir = path.join(__dirname, 'orderedList');
+if (!fs.existsSync(orderedListDir)) {
+  fs.mkdirSync(orderedListDir);
 }
 
 // Use cors middleware
@@ -25,7 +25,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Multer setup for handling file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/');
+    cb(null, 'orderedList/');
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + path.extname(file.originalname));
@@ -52,6 +52,14 @@ const DishSchema = new mongoose.Schema({
 });
 
 const Dish = mongoose.model('Dish', DishSchema);
+
+// Define OrderList model
+const OrderListSchema = new mongoose.Schema({
+  imageUrl: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now }
+});
+
+const OrderList = mongoose.model('OrderList', OrderListSchema);
 
 // Routes
 app.post('/api/dishes', upload.single('image'), async (req, res) => {
@@ -82,6 +90,26 @@ app.post('/api/dishes', upload.single('image'), async (req, res) => {
   }
 });
 
+// New route to handle order list image uploads
+app.post('/api/orderedList', upload.single('image'), async (req, res) => {
+  try {
+    const imageUrl = req.file ? req.file.path : null;
+    if (!imageUrl) {
+      return res.status(400).json({ success: false, message: 'No image uploaded' });
+    }
+
+    // Save the image URL to the database
+    const orderList = new OrderList({ imageUrl });
+    await orderList.save();
+
+    console.log('Order list image uploaded and saved to DB:', imageUrl);
+    res.json({ success: true, message: 'Image uploaded and saved to DB successfully', imageUrl });
+  } catch (error) {
+    console.error('Error uploading and saving order list image:', error);
+    res.status(500).json({ success: false, message: 'Error uploading and saving image' });
+  }
+});
+
 // GET all dishes
 app.get('/api/dishes', async (req, res) => {
   try {
@@ -95,5 +123,8 @@ app.get('/api/dishes', async (req, res) => {
 
 // Serve static files (images) from the 'uploads' directory
 app.use('/uploads', express.static('uploads'));
+
+// Serve static files (images) from the 'orderedList' directory
+app.use('/orderedList', express.static('orderedList'));
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
