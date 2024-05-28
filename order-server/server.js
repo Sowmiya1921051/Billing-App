@@ -5,19 +5,21 @@ const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+// const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/users');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Ensure the orderedList directory exists
-const orderedListDir = path.join(__dirname, 'orderedList');
+const orderedListDir = path.join(__dirname, 'orderedList'); 
 if (!fs.existsSync(orderedListDir)) {
   fs.mkdirSync(orderedListDir);
 }
 
 // Use cors middleware
 app.use(cors());
-
+ 
 // Body parser middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -41,6 +43,10 @@ mongoose.connect('mongodb://localhost:27017/billing_db', { useNewUrlParser: true
     console.error('MongoDB connection error:', err);
     process.exit(1);
   });
+
+// Use auth routes
+// app.use('/api/auth', authRoutes);
+app.use('/users', userRoutes);
 
 // Define Dish model
 const DishSchema = new mongoose.Schema({
@@ -74,6 +80,8 @@ function getCurrentDateTime() {
 
   return `${year}-${month}-${date} ${hours}:${minutes}:${seconds}`;
 }
+
+
 
 // Update order status route
 app.put('/api/orderedList/:id', async (req, res) => {

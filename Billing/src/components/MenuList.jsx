@@ -34,6 +34,10 @@ const AddDishForm = () => {
       console.error('Axios error:', error);
     }
   };
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    window.location.href = '/login'; // Navigate to login page
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -74,6 +78,7 @@ const AddDishForm = () => {
           View Orders
         </Link>
       </div>
+      <button onClick={handleLogout}>Logout</button>
     </div>
   );
 };
