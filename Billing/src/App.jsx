@@ -28,11 +28,11 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={!isLoggedIn ? <Signup onSignup={handleSignup} /> : <Navigate to="/login" replace />} />
-          <Route path="/login" element={isLoggedIn ? <Navigate to="/menulist" replace /> : <Login onLogin={handleLogin} />} />
-          <Route path="/menulist" element={<MenuList onLogout={handleLogout} />} />
-          <Route path="/orders" element={isLoggedIn ? <ViewOrders /> : <Navigate to="/" replace />} />
+          <Route path="/login" element={isLoggedIn ? <Navigate to="/orders" replace /> : <Login onLogin={handleLogin} />} />
+          <Route path="/orders" element={<ViewOrders onLogout={handleLogout} />} />
+          <Route path="/menulist" element={isLoggedIn ? <MenuList /> : <Navigate to="/" replace />} />
           <Route path="/orderpage" element={isLoggedIn ? <OrderPage /> : <Navigate to="/" replace />} />
-          <Route path="/aboutComponent" element={isLoggedIn ? <Admin /> : <Navigate to="/" replace />} />
+          <Route path="/adminComponent" element={isLoggedIn ? <Admin /> : <Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </div>

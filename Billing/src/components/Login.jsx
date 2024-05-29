@@ -52,7 +52,7 @@
 
 // export default Login;
 
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import axios from 'axios';
 
 const Login = () => {
@@ -64,7 +64,7 @@ const Login = () => {
     try {
       const response = await axios.post('http://localhost:5000/users/login', { username, password });
       localStorage.setItem('token', response.data.token);
-      window.location.href = '/menulist'; // Navigate to home page
+      window.location.href = '/orders'; // Navigate to home page
     } catch (error) {
       console.error('Error during login', error);
     }

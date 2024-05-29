@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import ViewOrders from './viewOrders'
 
 const AddDishForm = () => {
   const [name, setName] = useState('');
@@ -40,7 +41,7 @@ const AddDishForm = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className=" min-h-screen bg-gray-100">
       <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
         <h2 className="text-2xl mb-6 text-center">Add Dish</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -74,11 +75,13 @@ const AddDishForm = () => {
             Add Dish
           </button>
         </form>
-        <Link to="/orders" className="bg-green-500 text-white px-4 py-2 rounded mt-4 block text-center">
+        <Link to="/adminComponent" className="bg-green-500 text-white px-4 py-2 rounded mt-4 block text-center">
           View Orders
-        </Link>
+        </Link> 
+        
       </div>
       <button onClick={handleLogout}>Logout</button>
+      {/* <ViewOrders/> */}
     </div>
   );
 };
