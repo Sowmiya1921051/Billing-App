@@ -95,7 +95,7 @@ app.put('/api/orderedList/:id', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
 
-    // Update the order status
+    // Update the order status 
     order.status = status;
     await order.save();
 
@@ -119,7 +119,7 @@ app.post('/api/dishes', upload.single('image'), async (req, res) => {
     const gstRateNum = parseFloat(gstRate);
 
     if (isNaN(originalPriceNum) || isNaN(gstRateNum)) {
-      throw new Error('Invalid original price or GST rate');
+      throw new Error('Invalid original price or GST rate'); 
     }
 
     // Calculate price with GST
