@@ -54,8 +54,9 @@ const DishSchema = new mongoose.Schema({
   originalPrice: { type: Number, required: true },
   gstRate: { type: Number, default: 0.05 },
   priceWithGST: { type: Number, required: true },
+  category: { type: String },
   imageUrl: { type: String },
-  hidden: { type: Boolean, default: false } // New field for hidden status
+  hidden: { type: Boolean, default: false } ,
 });
 
 const Dish = mongoose.model('Dish', DishSchema);
@@ -136,14 +137,14 @@ app.put('/api/orderedList/:id', async (req, res) => {
 app.post('/api/dishes', upload.single('image'), async (req, res) => {
   console.log('Request received:', req.body, req.file);
   try {
-    const { name, originalPrice, gstRate = 0.05 } = req.body;
+    const { name, originalPrice, gstRate = 0.05, category } = req.body;
 
     // Ensure originalPrice and gstRate are numbers
     const originalPriceNum = parseFloat(originalPrice);
     const gstRateNum = parseFloat(gstRate);
 
     if (isNaN(originalPriceNum) || isNaN(gstRateNum)) {
-      throw new Error('Invalid original price or GST rate'); 
+      throw new Error('Invalid original price or GST rate');
     }
 
     // Calculate price with GST
@@ -151,7 +152,17 @@ app.post('/api/dishes', upload.single('image'), async (req, res) => {
 
     const imageUrl = req.file ? req.file.path : null;
 
-    const dish = new Dish({ name, originalPrice: originalPriceNum, gstRate: gstRateNum, priceWithGST, imageUrl });
+    // Create a new Dish document with the category included
+    const dish = new Dish({
+      name,
+      originalPrice: originalPriceNum,
+      gstRate: gstRateNum,
+      priceWithGST,
+      imageUrl,
+      category, // Ensure category is included
+    });
+
+    // Save the new dish document
     await dish.save();
     console.log('Dish added successfully:', dish);
     res.json({ success: true, message: 'Dish added successfully' });
@@ -160,7 +171,6 @@ app.post('/api/dishes', upload.single('image'), async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
-
 // New route to handle order list image uploads
 app.post('/api/orderedList', upload.single('image'), async (req, res) => {
   try {

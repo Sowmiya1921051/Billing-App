@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@headlessui/react": "^2.0.4",
     "axios": "^1.7.2",
     "html-to-image": "^1.11.11",
     "html2canvas": "^1.4.1",

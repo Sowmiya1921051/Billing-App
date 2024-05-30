@@ -3,9 +3,12 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 
 const AddDishForm = () => {
+
+
   const [dishes, setDishes] = useState([]);
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
+  const [category, setCategory] = useState('');
   const [image, setImage] = useState(null);
 
   useEffect(() => {
@@ -45,10 +48,11 @@ const AddDishForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', { name, price, image });
+    console.log('Form submitted:', { name, price, category, image });
     const formData = new FormData();
     formData.append('name', name);
     formData.append('originalPrice', price);
+    formData.append('category', category);
     formData.append('image', image);
 
     try {
@@ -60,6 +64,7 @@ const AddDishForm = () => {
       alert('Dish added successfully');
       setName('');
       setPrice('');
+      setCategory('');
       setImage(null);
       fetchDishes(); // Refresh the dish list
     } catch (error) {
@@ -93,6 +98,15 @@ const AddDishForm = () => {
               type="number"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
+              className="border rounded px-2 py-1 w-full"
+            />
+          </div>
+          <div>
+            <label className="block text-left">Category:</label>
+            <input
+              type="text"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
               className="border rounded px-2 py-1 w-full"
             />
           </div>
