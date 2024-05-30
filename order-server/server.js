@@ -54,10 +54,12 @@ const DishSchema = new mongoose.Schema({
   originalPrice: { type: Number, required: true },
   gstRate: { type: Number, default: 0.05 },
   priceWithGST: { type: Number, required: true },
-  imageUrl: { type: String }
+  imageUrl: { type: String },
+  hidden: { type: Boolean, default: false } // New field for hidden status
 });
 
 const Dish = mongoose.model('Dish', DishSchema);
+
 
 // Define OrderList model
 const OrderListSchema = new mongoose.Schema({
@@ -81,6 +83,28 @@ function getCurrentDateTime() {
   return `${year}-${month}-${date} ${hours}:${minutes}:${seconds}`;
 }
 
+// Update dish hidden status route
+app.put('/api/dishes/:id/hidden', async (req, res) => {
+  try {
+    const dishId = req.params.id;
+    const { hidden } = req.body;
+
+    // Find the dish by ID and update the hidden status
+    const dish = await Dish.findById(dishId);
+    if (!dish) {
+      return res.status(404).json({ success: false, message: 'Dish not found' });
+    }
+
+    dish.hidden = hidden;
+    await dish.save();
+
+    console.log('Dish hidden status updated successfully:', dish);
+    res.json({ success: true, message: 'Dish hidden status updated successfully', dish });
+  } catch (error) {
+    console.error('Error updating dish hidden status:', error);
+    res.status(500).json({ success: false, message: 'Error updating dish hidden status' });
+  }
+});
 
 
 // Update order status route
@@ -158,7 +182,19 @@ app.post('/api/orderedList', upload.single('image'), async (req, res) => {
 });
 
 // GET all dishes
+// GET all dishes that are not hidden
 app.get('/api/dishes', async (req, res) => {
+  try {
+    const dishes = await Dish.find({ hidden: false }); // Fetch dishes that are not hidden
+    res.json(dishes); // Send the fetched dishes as a JSON response
+  } catch (error) {
+    console.error('Error fetching dishes:', error); // Log any errors that occur during fetching
+    res.status(500).json({ success: false, message: 'Error fetching dishes' }); // Send an error response if fetching fails
+  }
+});
+
+// GET all dishes (including hidden) for admin view
+app.get('/api/dishes/all', async (req, res) => {
   try {
     const dishes = await Dish.find(); // Fetch all dishes from the database
     res.json(dishes); // Send the fetched dishes as a JSON response
@@ -167,6 +203,7 @@ app.get('/api/dishes', async (req, res) => {
     res.status(500).json({ success: false, message: 'Error fetching dishes' }); // Send an error response if fetching fails
   }
 });
+
 
 // GET all order list images
 app.get('/api/orderedList', async (req, res) => {

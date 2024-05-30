@@ -9,6 +9,7 @@ function DishList() {
   const [originalPrices, setOriginalPrices] = useState({});
   const [counters, setCounters] = useState({});
   const [orders, setOrders] = useState({});
+  
 
   useEffect(() => {
     axios.get('http://localhost:5000/api/dishes')
@@ -74,7 +75,7 @@ function DishList() {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    window.location.href = '/login'; // Navigate to login page
+    window.location.href = '/login'; 
   };
   
   return (
@@ -127,3 +128,4 @@ function DishList() {
 }
 
 export default DishList;
+

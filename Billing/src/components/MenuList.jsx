@@ -1,12 +1,43 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import ViewOrders from './viewOrders'
 
 const AddDishForm = () => {
+  const [dishes, setDishes] = useState([]);
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [image, setImage] = useState(null);
+
+  useEffect(() => {
+    fetchDishes();
+  }, []);
+
+  const fetchDishes = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/dishes/all');
+      setDishes(response.data);
+    } catch (error) {
+      console.error('Error fetching dishes:', error);
+    }
+  };
+
+  const handleHideDish = async (id) => {
+    try {
+      await axios.put(`http://localhost:5000/api/dishes/${id}/hidden`, { hidden: true });
+      fetchDishes(); // Refresh the dish list
+    } catch (error) {
+      console.error('Error hiding dish:', error);
+    }
+  };
+
+  const handleUnhideDish = async (id) => {
+    try {
+      await axios.put(`http://localhost:5000/api/dishes/${id}/hidden`, { hidden: false });
+      fetchDishes(); // Refresh the dish list
+    } catch (error) {
+      console.error('Error unhiding dish:', error);
+    }
+  };
 
   const handleImageChange = (e) => {
     setImage(e.target.files[0]);
@@ -30,23 +61,25 @@ const AddDishForm = () => {
       setName('');
       setPrice('');
       setImage(null);
+      fetchDishes(); // Refresh the dish list
     } catch (error) {
       alert('Error adding dish');
       console.error('Axios error:', error);
     }
   };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     window.location.href = '/login'; // Navigate to login page
   };
 
   return (
-    <div className=" min-h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
-        <h2 className="text-2xl mb-6 text-center">Add Dish</h2>
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center py-8">
+      <div className="bg-white p-8 rounded shadow-md w-full max-w-md text-center">
+        <h2 className="text-2xl mb-6">Add Dish</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block">Name:</label>
+            <label className="block text-left">Name:</label>
             <input
               type="text"
               value={name}
@@ -55,7 +88,7 @@ const AddDishForm = () => {
             />
           </div>
           <div>
-            <label className="block">Original Price:</label>
+            <label className="block text-left">Original Price:</label>
             <input
               type="number"
               value={price}
@@ -64,7 +97,7 @@ const AddDishForm = () => {
             />
           </div>
           <div>
-            <label className="block">Image:</label>
+            <label className="block text-left">Image:</label>
             <input
               type="file"
               onChange={handleImageChange}
@@ -75,13 +108,51 @@ const AddDishForm = () => {
             Add Dish
           </button>
         </form>
-        <Link to="/adminComponent" className="bg-green-500 text-white px-4 py-2 rounded mt-4 block text-center">
+        <Link to="/adminComponent" className="bg-green-500 text-white px-4 py-2 rounded mt-4 block">
           View Orders
-        </Link> 
-        
+        </Link>
       </div>
-      <button onClick={handleLogout}>Logout</button>
-      {/* <ViewOrders/> */}
+      <button onClick={handleLogout} className="mt-4 bg-red-500 text-white px-4 py-2 rounded">
+        Logout
+      </button>
+
+      <div className="min-h-screen bg-gray-100 p-8 w-full">
+        <h2 className="text-2xl mb-6 text-center">Dish List</h2>
+        <table className="min-w-full bg-white text-center">
+          <thead>
+            <tr>
+              <th className="py-2">Name</th>
+              <th className="py-2">Price</th>
+              <th className="py-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {dishes.map((dish) => (
+              <tr key={dish._id} className="border-t">
+                <td className="py-2 px-4">{dish.name}</td>
+                <td className="py-2 px-4">${dish.priceWithGST.toFixed(2)}</td>
+                <td className="py-2 px-4">
+                  {dish.hidden ? (
+                    <button
+                      onClick={() => handleUnhideDish(dish._id)}
+                      className="bg-green-500 text-white px-4 py-2 rounded"
+                    >
+                      Unhide
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleHideDish(dish._id)}
+                      className="bg-red-500 text-white px-4 py-2 rounded"
+                    >
+                      Hide
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
