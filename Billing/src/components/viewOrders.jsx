@@ -4,20 +4,21 @@ import OrderSidebar from './OrderSidebar';
 import { Link } from 'react-router-dom';
 import Category from './Category';
 
-
 function DishList() {
   const [dishes, setDishes] = useState([]);
+  const [filteredDishes, setFilteredDishes] = useState([]);
   const [prices, setPrices] = useState({});
   const [originalPrices, setOriginalPrices] = useState({});
   const [counters, setCounters] = useState({});
   const [orders, setOrders] = useState({});
-  
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   useEffect(() => {
     axios.get('http://localhost:5000/api/dishes')
       .then(response => {
         const fetchedDishes = response.data;
-        setDishes(fetchedDishes); 
+        setDishes(fetchedDishes);
+        setFilteredDishes(fetchedDishes); 
 
         const initialPrices = {};
         const initialOriginalPrices = {};
@@ -34,12 +35,26 @@ function DishList() {
       .catch(error => {
         console.error('Error fetching dishes:', error);
       });
-  }, []); 
+  }, []);
 
+  useEffect(() => {
+    filterDishesByCategory(selectedCategory);
+  }, [selectedCategory, dishes]);
+
+  const filterDishesByCategory = (category) => {
+  if (category === 'all') {
+    setFilteredDishes(dishes);
+  } else {
+    const filtered = dishes.filter(dish => dish.category.toLowerCase() === category.toLowerCase());
+    setFilteredDishes(filtered);
+  }
+};
+
+  
   const handleIncreasePrice = (id) => {
     setPrices(prevPrices => ({
       ...prevPrices,
-      [id]: prevPrices[id] 
+      [id]: prevPrices[id]
     }));
     setCounters(prevCounters => ({
       ...prevCounters,
@@ -77,20 +92,18 @@ function DishList() {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    window.location.href = '/login'; 
+    window.location.href = '/login';
   };
-  
+
   return (
     <div className="min-h-screen bg-gray-100">
-  
       <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex">
-             <Link className='mt-4' to='/menulist'>MenuList</Link>
+              <Link className='mt-4' to='/menulist'>MenuList</Link>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:items-center">
-          
               <button onClick={handleLogout} className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
                 Logout
               </button>
@@ -99,12 +112,12 @@ function DishList() {
         </div>
       </nav>
 
-      <Category/>
+      <Category setSelectedCategory={setSelectedCategory} />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="py-6">
           <h2 className="text-3xl font-bold my-8">Dishes</h2>
           <ul className="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {dishes.map(dish => (
+            {filteredDishes.map(dish => (
               <li key={dish._id} className="bg-white rounded-lg shadow-md p-4">
                 {dish.imageUrl && <img src={`http://localhost:5000/${dish.imageUrl}`} alt={dish.name} className="w-full h-48 object-cover rounded-t-lg" />}
                 <div className="p-4">
@@ -130,4 +143,3 @@ function DishList() {
 }
 
 export default DishList;
-

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 
-function Category() {
+function Category({ setSelectedCategory }) {
   const [isOpen, setIsOpen] = useState({
     all: false,
     veg: false,
@@ -22,9 +22,10 @@ function Category() {
       fruits: false,
       [category]: !prevState[category],
     }));
+    setSelectedCategory(category); // Remove the conditional here
   };
+  
 
-  // eslint-disable-next-line react/prop-types
   const Dropdown = ({ label, items, category }) => (
     <div className="relative inline-block text-left">
       <button
@@ -38,13 +39,13 @@ function Category() {
         <div className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
           <div className="py-1">
             {items.map((item, index) => (
-              <Link
+              <p
                 key={index}
                 to={`/${item.toLowerCase().replace(/\s+/g, '-')}`}
                 className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
               >
                 {item}
-              </Link>
+              </p>
             ))}
           </div>
         </div>
@@ -57,7 +58,7 @@ function Category() {
       <div className="flex space-x-4 p-4">
         <Dropdown label="All" items={allItems} category="all" />
         <Dropdown label="Veg" items={vegItems} category="veg" />
-        <Dropdown label="Non-Veg" items={nonVegItems} category="nonVeg" />
+        <Dropdown label="Non Veg" items={nonVegItems} category="nonVeg" />
         <Dropdown label="Fruits" items={fruitItems} category="fruits" />
       </div>
     </div>
