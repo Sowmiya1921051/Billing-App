@@ -25,7 +25,18 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Multer setup for handling file uploads
-const storage = multer.diskStorage({
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, 'orderedList/');
+//   },
+//   filename: (req, file, cb) => {
+//     cb(null, Date.now() + path.extname(file.originalname));
+//   }
+// });
+
+// const upload = multer({ storage });
+
+const storageOrderedList = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'orderedList/');
   },
@@ -34,7 +45,20 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ storage });
+const uploadOrderedList = multer({ storage: storageOrderedList });
+
+// New multer configuration for 'uploads/'
+const storageUploads = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
+});
+
+const uploadToUploads = multer({ storage: storageUploads });
+
 
 // Connect to MongoDB
 mongoose.connect('mongodb://localhost:27017/billing_db', { useNewUrlParser: true, useUnifiedTopology: true })
@@ -134,7 +158,7 @@ app.put('/api/orderedList/:id', async (req, res) => {
 
 
 // Routes
-app.post('/api/dishes', upload.single('image'), async (req, res) => {
+app.post('/api/dishes', uploadToUploads.single('image'), async (req, res) => {
   console.log('Request received:', req.body, req.file);
   try {
     const { name, originalPrice, gstRate = 0.05, category } = req.body;
@@ -172,7 +196,7 @@ app.post('/api/dishes', upload.single('image'), async (req, res) => {
   }
 });
 // New route to handle order list image uploads
-app.post('/api/orderedList', upload.single('image'), async (req, res) => {
+app.post('/api/orderedList', uploadOrderedList.single('image'), async (req, res) => {
   try {
     const imageUrl = req.file ? req.file.path : null;
     if (!imageUrl) {
