@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import OrderSidebar from './OrderSidebar';
 import { Link } from 'react-router-dom';
@@ -6,7 +6,6 @@ import Category from './Category';
 
 function DishList() {
   const [dishes, setDishes] = useState([]);
-  const [filteredDishes, setFilteredDishes] = useState([]);
   const [prices, setPrices] = useState({});
   const [originalPrices, setOriginalPrices] = useState({});
   const [counters, setCounters] = useState({});
@@ -14,13 +13,14 @@ function DishList() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
   const [categoryTitle, setCategoryTitle] = useState('Dishes');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     axios.get('http://localhost:5000/api/dishes')
       .then(response => {
         const fetchedDishes = response.data;
         setDishes(fetchedDishes);
-        setFilteredDishes(fetchedDishes); 
 
         const initialPrices = {};
         const initialOriginalPrices = {};
@@ -33,29 +33,26 @@ function DishList() {
         setPrices(initialPrices);
         setOriginalPrices(initialOriginalPrices);
         setCounters(initialCounters);
+        setLoading(false);
       })
       .catch(error => {
         console.error('Error fetching dishes:', error);
+        setError('Error fetching dishes');
+        setLoading(false);
       });
   }, []);
 
-  useEffect(() => {
-    filterDishes(selectedCategory, selectedType);
-  }, [selectedCategory, selectedType, dishes]);
-
-  const filterDishes = (category, subcategory) => {
-    let filtered = dishes.filter(dish => {
-      const categoryMatch = category === 'all' || (dish.category && dish.category.toLowerCase().split(',').includes(category.toLowerCase()));
-      const subcategoryMatch = subcategory === 'all' || (dish.subcategory && dish.subcategory.toLowerCase().split(',').includes(subcategory.toLowerCase()));
+  const filteredDishes = useMemo(() => {
+    return dishes.filter(dish => {
+      const categoryMatch = selectedCategory === 'all' || (dish.category && dish.category.toLowerCase().split(',').includes(selectedCategory.toLowerCase()));
+      const subcategoryMatch = selectedType === 'all' || (dish.subcategory && dish.subcategory.toLowerCase().split(',').includes(selectedType.toLowerCase()));
       return categoryMatch && subcategoryMatch;
     });
-    setFilteredDishes(filtered);
-    // document.title = category.charAt(0).toUpperCase() + category.slice(1) + " Page";
-    setCategoryTitle(category === 'all' ? 'Dishes' : category.charAt(0).toUpperCase() + category.slice(1));
-  };
-  
-  
-  
+  }, [dishes, selectedCategory, selectedType]);
+
+  useEffect(() => {
+    setCategoryTitle(selectedCategory === 'all' ? 'Dishes' : selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1));
+  }, [selectedCategory]);
 
   const handleIncreasePrice = (id) => {
     setPrices(prevPrices => ({
@@ -101,6 +98,14 @@ function DishList() {
     window.location.href = '/login';
   };
 
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="min-h-screen flex items-center justify-center">{error}</div>;
+  }
+
   return (
     <div className="min-h-screen bg-gray-100">
       <nav className="bg-white shadow-sm">
@@ -121,7 +126,7 @@ function DishList() {
       <Category setSelectedCategory={setSelectedCategory} setSelectedType={setSelectedType} />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="py-6">
-        <h2 className="text-3xl font-bold my-8">{categoryTitle}</h2>
+          <h2 className="text-3xl font-bold my-8">{categoryTitle}</h2>
           <ul className="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredDishes.map(dish => (
               <li key={dish._id} className="bg-white rounded-lg shadow-md p-4">

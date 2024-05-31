@@ -13,18 +13,22 @@ function OrderedListImages() {
         const response = await axios.get('http://localhost:5000/api/orderedList');
         if (Array.isArray(response.data)) {
           setImages(response.data);
-          setLoading(false);
         } else {
           setImages([response.data]);
-          setLoading(false);
         }
+        setLoading(false);
       } catch (error) {
         setError(error.message);
         setLoading(false);
       }
     }
 
-    fetchImages();
+    fetchImages(); // Initial fetch
+
+    const intervalId = setInterval(fetchImages, 1000); // Fetch every 60 seconds
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   useEffect(() => {
