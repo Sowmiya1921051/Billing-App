@@ -1,30 +1,33 @@
-import React, { useState } from 'react';
-// import { Link } from 'react-router-dom';
+import  { useState } from 'react';
 
-function Category({ setSelectedCategory }) {
+// eslint-disable-next-line react/prop-types
+function Category({ setSelectedCategory, setSelectedType }) {
   const [isOpen, setIsOpen] = useState({
     all: false,
     veg: false,
     nonVeg: false,
-    fruits: false,
+    fruits:false,
   });
 
-  const allItems = ['Item 1', 'Item 2', 'Item 3', 'Item 4'];
-  const vegItems = ['Veg 1', 'Veg 2', 'Veg 3', 'Veg 4'];
-  const nonVegItems = ['Non-Veg 1', 'Non-Veg 2', 'Non-Veg 3', 'Non-Veg 4'];
-  const fruitItems = ['Fruit 1', 'Fruit 2', 'Fruit 3'];
+  const allItems = ['All', 'Breakfast', 'Lunch', 'Dinner'];
+  const vegItems = ['All', 'Breakfast', 'Lunch', 'Dinner'];
+  const nonVegItems = ['All', 'Breakfast', 'Lunch', 'Dinner'];
+  const fruits = ['All', 'Breakfast', 'Lunch', 'Dinner'];
 
   const handleToggle = (category) => {
     setIsOpen((prevState) => ({
       all: false,
       veg: false,
       nonVeg: false,
-      fruits: false,
       [category]: !prevState[category],
     }));
-    setSelectedCategory(category); // Remove the conditional here
+    setSelectedCategory(category);
+    setSelectedType('all'); // Reset the type filter when a new category is selected
   };
-  
+
+  const handleTypeToggle = (type) => {
+    setSelectedType(type);
+  };
 
   const Dropdown = ({ label, items, category }) => (
     <div className="relative inline-block text-left">
@@ -41,8 +44,8 @@ function Category({ setSelectedCategory }) {
             {items.map((item, index) => (
               <p
                 key={index}
-                to={`/${item.toLowerCase().replace(/\s+/g, '-')}`}
-                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                onClick={() => handleTypeToggle(item.toLowerCase())}
+                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
               >
                 {item}
               </p>
@@ -59,7 +62,7 @@ function Category({ setSelectedCategory }) {
         <Dropdown label="All" items={allItems} category="all" />
         <Dropdown label="Veg" items={vegItems} category="veg" />
         <Dropdown label="Non Veg" items={nonVegItems} category="nonVeg" />
-        <Dropdown label="Fruits" items={fruitItems} category="fruits" />
+        <Dropdown label="Fruits" items={fruits} category="fruits" />
       </div>
     </div>
   );

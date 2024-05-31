@@ -79,6 +79,7 @@ const DishSchema = new mongoose.Schema({
   gstRate: { type: Number, default: 0.05 },
   priceWithGST: { type: Number, required: true },
   category: { type: String },
+  subcategory: { type: String },
   imageUrl: { type: String },
   hidden: { type: Boolean, default: false } ,
 });
@@ -161,7 +162,7 @@ app.put('/api/orderedList/:id', async (req, res) => {
 app.post('/api/dishes', uploadToUploads.single('image'), async (req, res) => {
   console.log('Request received:', req.body, req.file);
   try {
-    const { name, originalPrice, gstRate = 0.05, category } = req.body;
+    const { name, originalPrice, gstRate = 0.05, category,subcategory } = req.body;
 
     // Ensure originalPrice and gstRate are numbers
     const originalPriceNum = parseFloat(originalPrice);
@@ -183,7 +184,8 @@ app.post('/api/dishes', uploadToUploads.single('image'), async (req, res) => {
       gstRate: gstRateNum,
       priceWithGST,
       imageUrl,
-      category, // Ensure category is included
+      category,
+      subcategory, // Ensure category is included
     });
 
     // Save the new dish document

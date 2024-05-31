@@ -9,6 +9,7 @@ const AddDishForm = () => {
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [category, setCategory] = useState('');
+  const [subcategory, setsubCategory] = useState('');
   const [image, setImage] = useState(null);
 
   useEffect(() => {
@@ -48,11 +49,12 @@ const AddDishForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', { name, price, category, image });
+    console.log('Form submitted:', { name, price, category,subcategory, image });
     const formData = new FormData();
     formData.append('name', name);
     formData.append('originalPrice', price);
     formData.append('category', category);
+    formData.append('subcategory', subcategory);
     formData.append('image', image);
 
     try {
@@ -65,6 +67,7 @@ const AddDishForm = () => {
       setName('');
       setPrice('');
       setCategory('');
+      setsubCategory('');
       setImage(null);
       fetchDishes(); // Refresh the dish list
     } catch (error) {
@@ -107,6 +110,15 @@ const AddDishForm = () => {
               type="text"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
+              className="border rounded px-2 py-1 w-full"
+            />
+          </div>
+          <div>
+            <label className="block text-left">SubCategory:</label>
+            <input
+              type="text"
+              value={subcategory}
+              onChange={(e) => setsubCategory(e.target.value)}
               className="border rounded px-2 py-1 w-full"
             />
           </div>
