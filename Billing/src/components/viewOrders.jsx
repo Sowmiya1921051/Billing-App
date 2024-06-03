@@ -1,8 +1,9 @@
+// src/DishList.js
 import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
-import OrderSidebar from './OrderSidebar';
 import Category from './Category';
 import Dashboard from './Dashboard';
+import OrderSidebar from './OrderSidebar'
 
 function DishList() {
   const [dishes, setDishes] = useState([]);
@@ -107,39 +108,39 @@ function DishList() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex">
-      <div className="flex-shrink-0 fixed top-0 left-0 h-full">
-        <Dashboard />
-      </div>
-      <div className="flex-grow ml-64 overflow-y-auto">
+    <div className="min-h-screen bg-gray-100 flex overflow-x-hidden">
+      <Dashboard />
+      <div className="flex-grow ml-16 md:ml-64 min-w-0 overflow-y-auto">
         <Category setSelectedCategory={setSelectedCategory} setSelectedType={setSelectedType} />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-6">
             <h2 className="text-3xl font-bold my-8">{categoryTitle}</h2>
-            <ul className="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredDishes.map(dish => (
-                <li key={dish._id} className="bg-white rounded-lg shadow-md p-4">
-                  {dish.imageUrl && <img src={`http://localhost:5000/${dish.imageUrl}`} alt={dish.name} className="w-full h-48 object-cover rounded-t-lg" />}
-                  <div className="p-4">
-                    <h3 className="text-xl font-semibold">{dish.name}</h3>
-                    <p className="text-gray-600">Price: ${prices[dish._id].toFixed(2)}</p>
-                    <div className="flex justify-between items-center mt-2">
-                      <div className="flex space-x-2">
-                        <button onClick={() => handleIncreasePrice(dish._id)} className="text-green-500 px-2 py-1 text-2xl font-bold">+</button>
-                        <button onClick={() => handleDecreasePrice(dish._id)} className="text-blue-500 px-2 py-1 text-2xl font-bold">-</button>
+            <div className="flex justify-center">
+              <ul className="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredDishes.map(dish => (
+                  <li key={dish._id} className="bg-white rounded-lg shadow-md p-4">
+                    {dish.imageUrl && <img src={`http://localhost:5000/${dish.imageUrl}`} alt={dish.name} className="w-full h-48 object-cover rounded-t-lg" />}
+                    <div className="p-4">
+                      <h3 className="text-xl font-semibold">{dish.name}</h3>
+                      <p className="text-gray-600">Price: ${prices[dish._id].toFixed(2)}</p>
+                      <div className="flex justify-between items-center mt-2">
+                        <div className="flex space-x-2">
+                          <button onClick={() => handleIncreasePrice(dish._id)} className="text-green-500 px-2 py-1 text-2xl font-bold">+</button>
+                          <button onClick={() => handleDecreasePrice(dish._id)} className="text-blue-500 px-2 py-1 text-2xl font-bold">-</button>
+                        </div>
+                        <span className="text-xl text-red-600 text-center font-bold">{counters[dish._id]}</span>
                       </div>
-                      <span className="text-xl text-red-600 text-center font-bold">{counters[dish._id]}</span>
                     </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </main>
       </div>
-      <div className="flex-shrink-0 fixed top-0 right-0 h-full w-64">
+      
         <OrderSidebar orders={orders} />
-      </div>
+      
     </div>
   );
 }

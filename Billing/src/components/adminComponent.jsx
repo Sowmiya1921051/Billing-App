@@ -83,21 +83,25 @@ function OrderedListImages() {
   const filteredImages = images.filter(image => !orderedImages.includes(image._id));
 
   return (
-    <div>
-      <h2>Ordered List Images</h2>
-      <div>
-        {filteredImages.map((image) => (
-          <div key={image._id}>
-            <p>ID: {image._id}</p>
-            <img
-              src={`http://localhost:5000/${image.imageUrl}`}
-              alt="Ordered List"
-              style={{ width: '200px', height: 'auto', margin: '10px' }}
-            />
-            <button onClick={() => handlePrint(`http://localhost:5000/${image.imageUrl}`, image._id)}>Order</button>
-            <button onClick={() => handleCancel(image._id)}>Cancel</button>
-          </div>
-        ))}
+    <div className="flex justify-center items-center min-h-screen">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold mb-4">Ordered List Images</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 ml-8">
+          {filteredImages.map((image) => (
+            <div key={image._id} className="p-4 border border-gray-200 rounded-md">
+              <p className="font-bold">ID: {image._id}</p>
+              <img
+                src={`http://localhost:5000/${image.imageUrl}`}
+                alt="Ordered List"
+                className="w-48 h-auto mx-auto"
+              />
+              <div className="mt-2 flex justify-center">
+                <button onClick={() => handlePrint(`http://localhost:5000/${image.imageUrl}`, image._id)} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md mr-2">Order</button>
+                <button onClick={() => handleCancel(image._id)} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md">Cancel</button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
