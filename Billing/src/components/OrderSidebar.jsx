@@ -60,7 +60,7 @@ const OrderSidebar = ({ orders }) => {
   };
 
   return (
-    <div className="w-64 bg-white shadow-lg p-4 fixed right-0 top-0 h-full mt-14 overflow-y-auto">
+    <div className="w-64 bg-white shadow-lg p-4 fixed right-0 top-0 h-full  overflow-y-auto">
       <h2 className="text-2xl font-bold mb-4">Your Orders</h2>
       <div ref={orderTableRef}>
         <div className="mb-4 text-center">
