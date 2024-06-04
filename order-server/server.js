@@ -91,7 +91,13 @@ const Dish = mongoose.model('Dish', DishSchema);
 const OrderListSchema = new mongoose.Schema({
   imageUrl: { type: String, required: true },
   createdAt: { type: String, default: getCurrentDateTime },
-  status: { type: String, enum: ['Ordered', 'Cancelled'], default: 'Ordered' } // Add status field with default value 'Ordered'
+  status: { type: String, enum: ['Ordered', 'Cancelled'], default: 'Ordered' },
+  orders: [{
+    name: { type: String, required: true },
+    quantity: { type: Number, required: true },
+    totalPrice: { type: Number, required: true },
+    gstPrice: { type: Number, required: true }
+  }]
 });
 
 const OrderList = mongoose.model('OrderList', OrderListSchema);
@@ -200,13 +206,16 @@ app.post('/api/dishes', uploadToUploads.single('image'), async (req, res) => {
 // New route to handle order list image uploads
 app.post('/api/orderedList', uploadOrderedList.single('image'), async (req, res) => {
   try {
+    const { orders } = req.body; // Get orders from request body
+    const parsedOrders = JSON.parse(orders); // Parse the orders
+
     const imageUrl = req.file ? req.file.path : null;
     if (!imageUrl) {
       return res.status(400).json({ success: false, message: 'No image uploaded' });
     }
 
-    // Save the image URL to the database
-    const orderList = new OrderList({ imageUrl });
+    // Save the image URL and orders to the database
+    const orderList = new OrderList({ imageUrl, orders: parsedOrders });
     await orderList.save();
 
     console.log('Order list image uploaded and saved to DB:', imageUrl);

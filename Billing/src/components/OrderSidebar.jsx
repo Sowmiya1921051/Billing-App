@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import { toPng } from 'html-to-image';
 
-const OrderSidebar = ({ orders }) => {
+const OrderSidebar = ({ orders, fetchDishes }) => {
   const [submitted, setSubmitted] = useState(false);
   const [imageUrl, setImageUrl] = useState(null);
   const orderTableRef = useRef(null);
@@ -27,17 +27,29 @@ const OrderSidebar = ({ orders }) => {
       const dataUrl = await handleCombinedFunctions();
       const blob = await (await fetch(dataUrl)).blob();
       const file = new File([blob], 'order.png', { type: 'image/png' });
+
+      const orderDetails = Object.entries(orders).map(([id, order]) => ({
+        name: order.name,
+        quantity: order.count,
+        totalPrice: (order.price * order.count).toFixed(2),
+        gstPrice: ((order.price * order.count) * 0.18).toFixed(2) // Assuming GST rate is 18%
+      }));
+
       const formData = new FormData();
       formData.append('image', file);
+      formData.append('orders', JSON.stringify(orderDetails));
+
       const response = await axios.post('http://localhost:5000/api/orderedList', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
-      console.log('Image URL submitted:', dataUrl);
+
+      console.log('Image URL and orders submitted:', dataUrl);
       console.log('Server response:', response.data);
+      fetchDishes(); // Fetch the latest dishes after successful submission
     } catch (error) {
-      console.error('Error submitting image URL:', error);
+      console.error('Error submitting image URL and orders:', error);
     }
   };
 
@@ -60,7 +72,7 @@ const OrderSidebar = ({ orders }) => {
   };
 
   return (
-    <div className="order-sidebar bg-white shadow-lg p-4  top-0 right-0 bottom-0 overflow-y-auto">
+    <div className="order-sidebar bg-white shadow-lg p-4 top-0 right-0 bottom-0 overflow-y-auto">
       <h2 className="text-2xl font-bold mb-4">Your Orders</h2>
       <div ref={orderTableRef}>
         <div className="mb-4 text-center">
@@ -74,12 +86,13 @@ const OrderSidebar = ({ orders }) => {
               <th>Name</th>
               <th>Quantity</th>
               <th>Total Price</th>
+              <th>GST Price</th>
             </tr>
           </thead>
           <tbody>
             {Object.keys(orders).length === 0 ? (
               <tr>
-                <td colSpan="3">No orders yet.</td>
+                <td colSpan="4">No orders yet.</td>
               </tr>
             ) : (
               Object.entries(orders).map(([id, order]) => (
@@ -87,17 +100,17 @@ const OrderSidebar = ({ orders }) => {
                   <td>{order.name}</td>
                   <td>{order.count}</td>
                   <td>${(order.price * order.count).toFixed(2)}</td>
+                  <td>${((order.price * order.count) * 0.18).toFixed(2)}</td>
                 </tr>
               ))
             )}
           </tbody>
         </table>
         <div className="mt-4 text-center">
-        <p className="font-semibold">Total Price:- ${calculateTotalPrice()}</p>
-        <p className="font-semibold">GST Price:- ${calculateTotalPriceWithGST()}</p>
+          <p className="font-semibold">Total Price: ${calculateTotalPrice()}</p>
+          <p className="font-semibold">Total Price with GST: ${calculateTotalPriceWithGST()}</p>
+        </div>
       </div>
-      </div>
-    
       <button
         onClick={handleSubmit}
         className="bg-blue-500 text-white px-4 py-2 rounded mt-4"

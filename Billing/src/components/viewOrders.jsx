@@ -1,4 +1,3 @@
-// src/DishList.js
 import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import Category from './Category';
@@ -17,30 +16,34 @@ function DishList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    axios.get('http://localhost:5000/api/dishes')
-      .then(response => {
-        const fetchedDishes = response.data;
-        setDishes(fetchedDishes);
+  const fetchDishes = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get('http://localhost:5000/api/dishes');
+      const fetchedDishes = response.data;
+      setDishes(fetchedDishes);
 
-        const initialPrices = {};
-        const initialOriginalPrices = {};
-        const initialCounters = {};
-        fetchedDishes.forEach(dish => {
-          initialPrices[dish._id] = dish.originalPrice;
-          initialOriginalPrices[dish._id] = dish.originalPrice;
-          initialCounters[dish._id] = 0;
-        });
-        setPrices(initialPrices);
-        setOriginalPrices(initialOriginalPrices);
-        setCounters(initialCounters);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error('Error fetching dishes:', error);
-        setError('Error fetching dishes');
-        setLoading(false);
+      const initialPrices = {};
+      const initialOriginalPrices = {};
+      const initialCounters = {};
+      fetchedDishes.forEach(dish => {
+        initialPrices[dish._id] = dish.originalPrice;
+        initialOriginalPrices[dish._id] = dish.originalPrice;
+        initialCounters[dish._id] = 0;
       });
+      setPrices(initialPrices);
+      setOriginalPrices(initialOriginalPrices);
+      setCounters(initialCounters);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching dishes:', error);
+      setError('Error fetching dishes');
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDishes();
   }, []);
 
   const filteredDishes = useMemo(() => {
@@ -139,7 +142,7 @@ function DishList() {
         </main>
       </div>
       
-        <OrderSidebar orders={orders} />
+      <OrderSidebar orders={orders} fetchDishes={fetchDishes} />
       
     </div>
   );
