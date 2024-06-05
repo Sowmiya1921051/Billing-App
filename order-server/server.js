@@ -82,6 +82,7 @@ const DishSchema = new mongoose.Schema({
   subcategory: { type: String },
   imageUrl: { type: String },
   hidden: { type: Boolean, default: false } ,
+  stock: { type: Number, default: 0 }
 });
 
 const Dish = mongoose.model('Dish', DishSchema);
@@ -168,7 +169,7 @@ app.put('/api/orderedList/:id', async (req, res) => {
 app.post('/api/dishes', uploadToUploads.single('image'), async (req, res) => {
   console.log('Request received:', req.body, req.file);
   try {
-    const { name, originalPrice, gstRate = 0.05, category,subcategory } = req.body;
+    const { name, originalPrice, gstRate = 0.05, category,subcategory,stock } = req.body;
 
     // Ensure originalPrice and gstRate are numbers
     const originalPriceNum = parseFloat(originalPrice);
@@ -191,7 +192,8 @@ app.post('/api/dishes', uploadToUploads.single('image'), async (req, res) => {
       priceWithGST,
       imageUrl,
       category,
-      subcategory, // Ensure category is included
+      subcategory,
+      stock, // Ensure category is included
     });
 
     // Save the new dish document
@@ -225,6 +227,8 @@ app.post('/api/orderedList', uploadOrderedList.single('image'), async (req, res)
     res.status(500).json({ success: false, message: 'Error uploading and saving image' });
   }
 });
+
+
 
 // GET all dishes
 // GET all dishes that are not hidden

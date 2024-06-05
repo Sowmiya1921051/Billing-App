@@ -1,82 +1,40 @@
-import React, { useState, useEffect } from 'react';
+// src/components/DishList.js
+
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-const Stock = () => {
+const DishList = () => {
   const [dishes, setDishes] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchDishes();
+    axios.get('http://localhost:5000/api/dishes')
+      .then(response => {
+        setDishes(response.data);
+      })
+      .catch(error => {
+        console.error('There was an error fetching the data!', error);
+      });
   }, []);
 
-  const fetchDishes = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/api/dishes/all');
-      setDishes(response.data);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching dishes:', error);
-      setError('Error fetching dishes');
-      setLoading(false);
-    }
-  };
-
-  const handleOrder = async (id, orderedQuantity) => {
-    try {
-      const dish = dishes.find(d => d._id === id);
-      if (dish && dish.stock >= orderedQuantity) {
-        const updatedStock = dish.stock - orderedQuantity;
-        await axios.put(`http://localhost:5000/api/dishes/${id}`, { stock: updatedStock });
-        fetchDishes(); // Refresh the dish list
-      } else {
-        alert('Not enough stock');
-      }
-    } catch (error) {
-      console.error('Error updating stock:', error);
-    }
-  };
-
-  if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-  }
-
-  if (error) {
-    return <div className="min-h-screen flex items-center justify-center">{error}</div>;
-  }
-
   return (
-    <div className="min-h-screen bg-gray-100 p-8 w-full">
-      <h2 className="text-2xl mb-6 text-center">Dish Stock</h2>
-      <table className="min-w-full bg-white text-center">
-        <thead>
-          <tr>
-            <th className="py-2">Name</th>
-            <th className="py-2">Price</th>
-            <th className="py-2">Stock</th>
-            <th className="py-2">Order</th>
-          </tr>
-        </thead>
-        <tbody>
-          {dishes.map((dish) => (
-            <tr key={dish._id} className="border-t">
-              <td className="py-2 px-4">{dish.name}</td>
-              <td className="py-2 px-4">${dish.priceWithGST.toFixed(2)}</td>
-              <td className="py-2 px-4">{dish.stock}</td>
-              <td className="py-2 px-4">
-                <button
-                  onClick={() => handleOrder(dish._id, 1)} // assuming ordering 1 at a time
-                  className="bg-blue-500 text-white px-4 py-2 rounded"
-                >
-                  Order 1
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Dishes</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {dishes.map(dish => (
+          <div key={dish._id.$oid} className="bg-white shadow-md rounded-lg overflow-hidden">
+            <div className="p-4">
+              <h2 className="text-xl font-semibold">{dish.name}</h2>
+              <h2 className="text-xl font-semibold">{dish.stock}</h2>
+              <p className="text-gray-600">Category: {dish.category}</p>
+              <p className="text-gray-600">Subcategory: {dish.subcategory}</p>
+              <p className="text-gray-800">Price: ₹{dish.originalPrice}</p>
+              <p className="text-gray-800">Price with GST: ₹{dish.priceWithGST}</p>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
 
-export default Stock;
+export default DishList;

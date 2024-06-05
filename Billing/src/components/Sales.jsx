@@ -148,7 +148,7 @@ const SalesDashboard = () => {
               <th className="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
               <th className="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
               <th className="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Price</th>
-              <th className="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">GST Price</th>
+              {/* <th className="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">GST Price</th> */}
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -158,7 +158,7 @@ const SalesDashboard = () => {
                 <td className="px-4 py-2 whitespace-nowrap">{sale.name}</td>
                 <td className="px-4 py-2 whitespace-nowrap">{sale.quantity}</td>
                 <td className="px-4 py-2 whitespace-nowrap">{sale.totalPrice}</td>
-                <td className="px-4 py-2 whitespace-nowrap">{sale.gstPrice}</td>
+                {/* <td className="px-4 py-2 whitespace-nowrap">{sale.gstPrice}</td> */}
               </tr>
             ))}
           </tbody>
