@@ -35,7 +35,7 @@ const OrderedData = () => {
   return (
     <div className="min-h-screen bg-gray-100 grid grid-cols-5">
       {/* Navigation Bar */}
-      <nav className="col-span-1 bg-gray-800 text-white p-4">
+      <nav className="col-span-1  text-white p-4">
         {/* Navigation items */}
       </nav>
       

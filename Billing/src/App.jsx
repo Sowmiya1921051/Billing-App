@@ -58,7 +58,7 @@ import Dashboard from './components/Dashboard';
 import OrderedData from './components/OrderedData'
 import Stock from './components/Stock'
 import Sales from './components/Sales'
-import Ingredients from './components/Ingredients';
+import Review from './components/Review';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('token'));
@@ -80,7 +80,7 @@ function App() {
     <div>
       <BrowserRouter>
         {/* Render Dashboard component conditionally */}
-        {isLoggedIn && <Dashboard isLoggedIn={isLoggedIn} onLogout={handleLogout} />}
+        {isLoggedIn && <Dashboard isLoggedIn={isLoggedIn} onLogout={handleLogout} />} 
 
         <Routes>
           <Route
@@ -98,7 +98,7 @@ function App() {
           <Route path="/orderedData" element={isLoggedIn ? <OrderedData /> : <Navigate to="/" replace />} />
           <Route path="/stock" element={isLoggedIn ? <Stock /> : <Navigate to="/" replace />} />
           <Route path="/sales" element={isLoggedIn ? <Sales /> : <Navigate to="/" replace />} />
-          <Route path="/ingredients" element={isLoggedIn ? <Ingredients /> : <Navigate to="/" replace />} />
+          <Route path="/reviews" element={isLoggedIn ? <Review /> : <Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </div>

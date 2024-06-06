@@ -52,7 +52,7 @@
 
 // export default Login;
 
-import  { useState } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 
 const Login = () => {
@@ -71,24 +71,39 @@ const Login = () => {
   };
 
   return (
-    <form onSubmit={handleLogin}>
-      <h2>Login</h2>
-      <input
-        type="text"
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button type="submit">Login</button>
-    </form>
+    <div className="flex justify-center items-center h-screen bg-gray-200">
+      <form onSubmit={handleLogin} className="bg-white p-8 rounded shadow-md">
+        <h2 className="text-2xl mb-4 text-center font-semibold">Login</h2>
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-indigo-500"
+          />
+        </div>
+        <div className="mb-6">
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-indigo-500"
+          />
+        </div>
+        <div className="text-center">
+          <button
+            type="submit"
+            className="w-full bg-indigo-500 text-white p-3 rounded hover:bg-indigo-600 focus:outline-none"
+          >
+            Login
+          </button>
+        </div>
+      </form>
+    </div>
   );
 };
 
 export default Login;
-
+  
