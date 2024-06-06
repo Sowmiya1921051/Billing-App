@@ -86,7 +86,7 @@ const OrderSidebar = ({ orders, fetchDishes }) => {
               <th>Name</th>
               <th>Quantity</th>
               <th>Total Price</th>
-              <th>GST Price</th>
+              {/* <th>GST Price</th> */}
             </tr>
           </thead>
           <tbody>
@@ -100,7 +100,7 @@ const OrderSidebar = ({ orders, fetchDishes }) => {
                   <td>{order.name}</td>
                   <td>{order.count}</td>
                   <td>${(order.price * order.count).toFixed(2)}</td>
-                  <td>${((order.price * order.count) * 0.18).toFixed(2)}</td>
+                  {/* <td>${((order.price * order.count) * 0.18).toFixed(2)}</td> */}
                 </tr>
               ))
             )}
@@ -113,14 +113,14 @@ const OrderSidebar = ({ orders, fetchDishes }) => {
       </div>
       <button
         onClick={handleSubmit}
-        className="bg-blue-500 text-white px-4 py-2 rounded mt-4"
+        className="bg-blue-500 text-white  px-4 py-2 rounded mt-4"
       >
         Submit Order
       </button>
       {submitted && (
         <p className="mt-4 text-green-600">Order submitted successfully!</p>
       )}
-      <div className="text-center mt-5">
+      {/* <div className="text-center mt-5">
         {imageUrl && (
           <div>
             <p className="font-bold">Image URL:</p>
@@ -133,7 +133,7 @@ const OrderSidebar = ({ orders, fetchDishes }) => {
             <img src={imageUrl} alt="Captured order" className="mt-4 border border-gray-300 rounded" />
           </div>
         )}
-      </div>
+      </div> */}
     </div>
   );
 };

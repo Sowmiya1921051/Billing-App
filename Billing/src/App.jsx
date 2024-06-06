@@ -80,7 +80,7 @@ function App() {
     <div>
       <BrowserRouter>
         {/* Render Dashboard component outside of Routes */}
-        <Dashboard isLoggedIn={isLoggedIn} onLogout={handleLogout} />
+        <Dashboard isLoggedIn={isLoggedIn} onLogout={handleLogout} /> 
 
         <Routes>
           <Route
