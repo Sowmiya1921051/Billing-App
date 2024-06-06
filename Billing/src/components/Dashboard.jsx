@@ -1,6 +1,5 @@
-// src/Dashboard.js
 import { Link } from 'react-router-dom';
-import { FaList, FaUser, FaCreditCard, FaSignInAlt, FaSignOutAlt, FaQuestionCircle, FaStar, FaUserCog } from 'react-icons/fa';
+import { FaList, FaUserCog, FaShoppingBasket, FaBoxes, FaMoneyBill, FaStar, FaUser, FaCreditCard, FaSignInAlt, FaSignOutAlt, FaQuestionCircle } from 'react-icons/fa';
 
 const handleLogout = () => {
   localStorage.removeItem('token');
@@ -18,13 +17,13 @@ const Dashboard = () => {
           <FaUserCog className="mr-0 md:mr-2" /> <span className="hidden md:inline">Admin Component</span>
         </Link>
         <Link className="flex items-center justify-center md:justify-start py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white text-gray-400 w-full" to="/orderedData">
-          <FaUserCog className="mr-0 md:mr-2" /> <span className="hidden md:inline">Ordered Data</span>
+          <FaShoppingBasket className="mr-0 md:mr-2" /> <span className="hidden md:inline">Ordered Data</span>
         </Link>
         <Link className="flex items-center justify-center md:justify-start py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white text-gray-400 w-full" to="/stock">
-          <FaUserCog className="mr-0 md:mr-2" /> <span className="hidden md:inline">Stock</span>
+          <FaBoxes className="mr-0 md:mr-2" /> <span className="hidden md:inline">Stock</span>
         </Link>
         <Link className="flex items-center justify-center md:justify-start py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white text-gray-400 w-full" to="/sales">
-          <FaUserCog className="mr-0 md:mr-2" /> <span className="hidden md:inline">Sales</span>
+          <FaMoneyBill className="mr-0 md:mr-2" /> <span className="hidden md:inline">Sales</span>
         </Link>
         <Link className="flex items-center justify-center md:justify-start py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white text-gray-400 w-full" to="/reviews">
           <FaStar className="mr-0 md:mr-2" /> <span className="hidden md:inline">Customer Reviews</span>
@@ -35,7 +34,7 @@ const Dashboard = () => {
         <Link className="flex items-center justify-center md:justify-start py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white text-gray-400 w-full" to="/payment">
           <FaCreditCard className="mr-0 md:mr-2" /> <span className="hidden md:inline">Payment</span>
         </Link>
-        <Link className="flex items-center justify-center md:justify-start py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white text-gray-400 w-full" to="/signup">
+        <Link className="flex items-center justify-center md:justify-start py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white text-gray-400 w-full" to="/">
           <FaSignInAlt className="mr-0 md:mr-2" /> <span className="hidden md:inline">Sign Up</span>
         </Link>
         <Link className="flex items-center justify-center md:justify-start py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white text-gray-400 w-full" to="/login">

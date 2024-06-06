@@ -79,13 +79,13 @@ function App() {
   return (
     <div>
       <BrowserRouter>
-        {/* Render Dashboard component outside of Routes */}
-        <Dashboard isLoggedIn={isLoggedIn} onLogout={handleLogout} /> 
+        {/* Render Dashboard component conditionally */}
+        {isLoggedIn && <Dashboard isLoggedIn={isLoggedIn} onLogout={handleLogout} />}
 
         <Routes>
           <Route
             path="/"
-            element={!isLoggedIn ? <Signup onSignup={handleSignup} /> : <Navigate to="/login" replace />}
+            element={isLoggedIn ? <Navigate to="/orders" replace /> : <Signup onSignup={handleSignup} />}
           />
           <Route
             path="/login"
