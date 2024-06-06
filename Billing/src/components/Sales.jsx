@@ -168,29 +168,31 @@ const SalesDashboard = () => {
       <div className="bg-white shadow-md rounded p-6 w-full max-w-4xl mb-8">
         <h2 className="text-2xl font-bold mb-6 text-center">Monthly Report</h2>
         {monthlyReport.map((report, index) => (
-          <div key={index} className="mb-4">
-            <h3 className="text-lg font-semibold">{report.month}</h3>
-            <p>Total Orders: {report.totalOrders}</p>
-            <p>Total Revenue: {report.totalRevenue}</p>
-            <p>Total GST: {report.totalGST}</p>
-            <div>
-              <h4 className="text-md font-semibold">Top Selling Dishes:</h4>
-              <ul>
-                {report.topDishes.map(([dish, quantity], index) => (
-                  <li key={index}>{dish}: {quantity} orders</li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-md font-semibold">Dishes Ordered Continuously:</h4>
-              <ul>
-                {report.continuousDishes.map(([dish, quantity], index) => (
-                  <li key={index}>{dish}: {quantity} orders</li>
-                ))}
-              </ul>
-            </div>
-          </div>
+  <div key={index} className="mb-4">
+    <h3 className="text-lg font-semibold">{report.month}</h3>
+    <p>Total Orders: {report.totalOrders}</p>
+    <p>Total Revenue: {report.totalRevenue}</p>
+    <p>Total GST: {report.totalGST}</p>
+    <div>
+      <h4 className="text-md font-semibold">Top Selling Dishes:</h4>
+      <ul>
+        {report.topDishes.map(([dish, quantity], index) => (
+          <li key={index}>{dish}: {quantity} orders</li>
         ))}
+      </ul>
+    </div>
+    <div>
+      <h4 className="text-md font-semibold">Dishes Ordered Continuously:</h4>
+      <ul>
+        {report.continuousDishes.map(([dish, quantity], index) => (
+          <li key={index}>{dish}: {quantity} orders</li>
+        ))}
+      </ul>
+    </div>
+  </div>
+))}
+
+
       </div>
     </div>
   );

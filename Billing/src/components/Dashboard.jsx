@@ -26,6 +26,9 @@ const Dashboard = () => {
         <Link className="flex items-center justify-center md:justify-start py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white text-gray-400 w-full" to="/sales">
           <FaUserCog className="mr-0 md:mr-2" /> <span className="hidden md:inline">Sales</span>
         </Link>
+        <Link className="flex items-center justify-center md:justify-start py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white text-gray-400 w-full" to="/ingredients">
+          <FaUserCog className="mr-0 md:mr-2" /> <span className="hidden md:inline">Ingredients</span>
+        </Link>
         <Link className="flex items-center justify-center md:justify-start py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white text-gray-400 w-full" to="/reviews">
           <FaStar className="mr-0 md:mr-2" /> <span className="hidden md:inline">Customer Reviews</span>
         </Link>

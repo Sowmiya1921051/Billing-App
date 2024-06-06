@@ -3,12 +3,13 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 
 const AddDishForm = () => {
+
+
   const [dishes, setDishes] = useState([]);
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [category, setCategory] = useState('');
   const [subcategory, setsubCategory] = useState('');
-  const [stock, setStock] = useState(''); // New state variable for stock
   const [image, setImage] = useState(null);
 
   useEffect(() => {
@@ -48,13 +49,12 @@ const AddDishForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', { name, price, category, subcategory, stock, image });
+    console.log('Form submitted:', { name, price, category,subcategory, image });
     const formData = new FormData();
     formData.append('name', name);
     formData.append('originalPrice', price);
     formData.append('category', category);
     formData.append('subcategory', subcategory);
-    formData.append('stock', stock); // Append stock to form data
     formData.append('image', image);
 
     try {
@@ -68,7 +68,6 @@ const AddDishForm = () => {
       setPrice('');
       setCategory('');
       setsubCategory('');
-      setStock(''); // Reset stock
       setImage(null);
       fetchDishes(); // Refresh the dish list
     } catch (error) {
@@ -124,15 +123,6 @@ const AddDishForm = () => {
             />
           </div>
           <div>
-            <label className="block text-left">Stock:</label>
-            <input
-              type="number"
-              value={stock}
-              onChange={(e) => setStock(e.target.value)}
-              className="border rounded px-2 py-1 w-full"
-            />
-          </div>
-          <div>
             <label className="block text-left">Image:</label>
             <input
               type="file"
@@ -159,7 +149,6 @@ const AddDishForm = () => {
             <tr>
               <th className="py-2">Name</th>
               <th className="py-2">Price</th>
-              <th className="py-2">Stock</th>
               <th className="py-2">Actions</th>
             </tr>
           </thead>
@@ -168,7 +157,6 @@ const AddDishForm = () => {
               <tr key={dish._id} className="border-t">
                 <td className="py-2 px-4">{dish.name}</td>
                 <td className="py-2 px-4">${dish.priceWithGST.toFixed(2)}</td>
-                <td className="py-2 px-4">{dish.stock}</td> {/* Display stock */}
                 <td className="py-2 px-4">
                   {dish.hidden ? (
                     <button
