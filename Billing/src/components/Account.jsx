@@ -39,7 +39,7 @@ const Account = () => {
 
       {/* Account Details */}
       <div className="w-3/4 p-6 flex justify-center items-center">
-        <div className="max-w-md w-full bg-white p-6 rounded-lg shadow-lg ">
+        <div className="max-w-md w-full border-indigo-500 border-4 bg-white p-6 rounded-lg shadow-lg ">
           <h2 className="text-2xl font-bold mb-6 text-center">Account Details</h2>
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">Name</label>
