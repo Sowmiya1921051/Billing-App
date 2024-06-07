@@ -1,4 +1,3 @@
-// src/AddDishForm.js
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
@@ -80,104 +79,117 @@ const AddDishForm = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
-      {/* <Dashboard /> */}
-      <div className="flex-1 bg-gray-100 flex flex-col items-center justify-center py-8">
-        <div className="bg-white p-8 rounded shadow-md w-full max-w-md text-center">
-          <h2 className="text-2xl mb-6">Add Dish</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-left">Name:</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="border rounded px-2 py-1 w-full"
-              />
-            </div>
-            <div>
-              <label className="block text-left">Original Price:</label>
-              <input
-                type="number"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                className="border rounded px-2 py-1 w-full"
-              />
-            </div>
-            <div>
-              <label className="block text-left">Category:</label>
-              <input
-                type="text"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="border rounded px-2 py-1 w-full"
-              />
-            </div>
-            <div>
-              <label className="block text-left">SubCategory:</label>
-              <input
-                type="text"
-                value={subcategory}
-                onChange={(e) => setsubCategory(e.target.value)}
-                className="border rounded px-2 py-1 w-full"
-              />
-            </div>
-            <div>
-              <label className="block text-left">Image:</label>
-              <input
-                type="file"
-                onChange={handleImageChange}
-                className="border rounded px-2 py-1 w-full"
-              />
-            </div>
-            <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded w-full">
-              Add Dish
-            </button>
-          </form>
-          <Link to="/adminComponent" className="bg-green-500 text-white px-4 py-2 rounded mt-4 block">
-            View Orders
-          </Link>
-        </div>
-        <button onClick={handleLogout} className="mt-4 bg-red-500 text-white px-4 py-2 rounded">
-          Logout
-        </button>
+    <div className="min-h-screen flex">
+      {/* Left-side navigation bar */}
+      <nav className="w-64  text-white p-6">
 
-        <div className="mt-8 w-full max-w-3xl bg-white p-8 rounded shadow-md">
-          <h2 className="text-2xl mb-6 text-center">Dish List</h2>
-          <table className="min-w-full bg-white text-center">
-            <thead>
-              <tr>
-                <th className="py-2">Name</th>
-                <th className="py-2">Price</th>
-                <th className="py-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {dishes.map((dish) => (
-                <tr key={dish._id} className="border-t">
-                  <td className="py-2 px-4">{dish.name}</td>
-                  <td className="py-2 px-4">${dish.priceWithGST.toFixed(2)}</td>
-                  <td className="py-2 px-4">
-                    {dish.hidden ? (
-                      <button
-                        onClick={() => handleUnhideDish(dish._id)}
-                        className="bg-green-500 text-white px-4 py-2 rounded"
-                      >
-                        Unhide
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => handleHideDish(dish._id)}
-                        className="bg-red-500 text-white px-4 py-2 rounded"
-                      >
-                        Hide
-                      </button>
-                    )}
-                  </td>
+      </nav>
+
+      {/* Right-side content */}
+      <div className="flex-1 bg-gray-100 flex flex-col items-center justify-center py-8">
+        <div className="w-full max-w-3xl">
+          <div className="bg-white p-8 rounded-3xl shadow-xl border-l-4 border-r-4 border-indigo-700 mb-8 text-center">
+            <h2 className="text-2xl mb-6">Add Dish</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-left">Name:</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="border-b focus:outline-none px-2 py-1 w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-left">Original Price:</label>
+                <input
+                  type="number"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  className="border-b focus:outline-none px-2 py-1 w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-left">Category:</label>
+                <input
+                  type="text"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="border-b focus:outline-none px-2 py-1 w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-left">SubCategory:</label>
+                <input
+                  type="text"
+                  value={subcategory}
+                  onChange={(e) => setsubCategory(e.target.value)}
+                  className="border-b focus:outline-none px-2 py-1 w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-left">Image:</label>
+                <input
+                  type="file"
+                  onChange={handleImageChange}
+                  className="border-b focus:outline-none px-2 py-1 w-full"
+                />
+              </div>
+              <button type="submit" className="bg-indigo-500 text-white px-4 py-2 rounded w-80">
+                Add Dish
+              </button>
+            </form>
+            <Link
+              to="/adminComponent"
+              className="mx-auto bg-green-500 text-white px-4 py-2 rounded mt-4 text-center block w-80"
+            >
+              View Orders
+            </Link>
+
+          </div>
+          <button
+            onClick={handleLogout}
+            className="mx-auto mt-10 bg-indigo-500 text-xl text-center text-white px-4 py-2 rounded-full block"
+          >
+            Logout
+          </button>
+          <div className="bg-white p-8 rounded-xl shadow-md w-full mt-12">
+            <h2 className="text-4xl mb-6 text-center font-semibold">Dish List</h2>
+            <table className="min-w-full bg-white text-center">
+              <thead>
+                <tr className="text-xl">
+                  <th className="py-2">Name</th>
+                  <th className="py-2">Price</th>
+                  <th className="py-2">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {dishes.map((dish, index) => (
+                  <tr key={dish._id} className={`border-t ${index % 2 === 0 ? 'bg-white' : 'bg-gray-100'}`}>
+                    <td className="py-2 px-4">{dish.name}</td>
+                    <td className="py-2 px-4">${dish.priceWithGST.toFixed(2)}</td>
+                    <td className="py-2 px-4">
+                      {dish.hidden ? (
+                        <button
+                          onClick={() => handleUnhideDish(dish._id)}
+                          className="bg-green-500 text-white px-4 py-2 rounded"
+                        >
+                          Unhide
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleHideDish(dish._id)}
+                          className="bg-red-500 text-white px-4 py-2 rounded"
+                        >
+                          Hide
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

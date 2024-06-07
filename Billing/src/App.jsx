@@ -59,6 +59,7 @@ import OrderedData from './components/OrderedData'
 import Stock from './components/Stock'
 import Sales from './components/Sales'
 import Review from './components/Review';
+import Account from './components/Account';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('token'));
@@ -99,6 +100,7 @@ function App() {
           <Route path="/stock" element={isLoggedIn ? <Stock /> : <Navigate to="/" replace />} />
           <Route path="/sales" element={isLoggedIn ? <Sales /> : <Navigate to="/" replace />} />
           <Route path="/reviews" element={isLoggedIn ? <Review /> : <Navigate to="/" replace />} />
+          <Route path="/account" element={isLoggedIn ? <Account /> : <Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </div>

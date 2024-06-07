@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
+import LazyLoad from 'react-lazyload';
 import Category from './Category';
 import Dashboard from './Dashboard';
-import OrderSidebar from './OrderSidebar'
+import OrderSidebar from './OrderSidebar';
 
 function DishList() {
   const [dishes, setDishes] = useState([]);
@@ -18,8 +19,9 @@ function DishList() {
 
   const fetchDishes = async () => {
     setLoading(true);
+    setError(null);
     try {
-      const response = await axios.get('http://localhost:5000/api/dishes');
+      const response = await axios.get('http://localhost:5000/api/dishes', { timeout: 10000 }); // 10 seconds timeout
       const fetchedDishes = response.data;
       setDishes(fetchedDishes);
 
@@ -34,10 +36,10 @@ function DishList() {
       setPrices(initialPrices);
       setOriginalPrices(initialOriginalPrices);
       setCounters(initialCounters);
-      setLoading(false);
     } catch (error) {
       console.error('Error fetching dishes:', error);
-      setError('Error fetching dishes');
+      setError('Error fetching dishes. Please try again later.');
+    } finally {
       setLoading(false);
     }
   };
@@ -122,7 +124,9 @@ function DishList() {
               <ul className="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredDishes.map(dish => (
                   <li key={dish._id} className="bg-white rounded-lg shadow-md p-4">
-                    {dish.imageUrl && <img src={`http://localhost:5000/${dish.imageUrl}`} alt={dish.name} className="w-full h-48 object-cover rounded-t-lg" />}
+                    <LazyLoad height={200} offset={100} placeholder={<div className="w-full h-48 bg-gray-200 animate-pulse"></div>}>
+                      {dish.imageUrl && <img src={`http://localhost:5000/${dish.imageUrl}`} alt={dish.name} className="w-full h-48 object-cover rounded-t-lg" />}
+                    </LazyLoad>
                     <div className="p-4">
                       <h3 className="text-xl font-semibold">{dish.name}</h3>
                       <p className="text-gray-600">Price: ${prices[dish._id].toFixed(2)}</p>
