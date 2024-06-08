@@ -176,13 +176,13 @@ const SalesDashboard = () => {
   };
 
   const top5Dishes = sortedDishes.slice(0, 5);
-  const per=sortedDishes.slice(0, 5).reduce((acc, [, quantity]) => acc + quantity, 0)
+  const per = sortedDishes.slice(0, 5).reduce((acc, [, quantity]) => acc + quantity, 0)
   const chartData1 = {
     labels: top5Dishes.map(([dish]) => dish),
     datasets: [
       {
         label: 'Total Orders',
-        data: top5Dishes.map(([_, quantity]) => quantity *per /100),
+        data: top5Dishes.map(([_, quantity]) => quantity * 100 / per),
         backgroundColor: ['rgba(255, 99, 132, 0.6)', 'rgba(54, 162, 235, 0.6)', 'rgba(255, 206, 86, 0.6)', 'rgba(75, 192, 192, 0.6)', 'rgba(153, 102, 255, 0.6)'],
         borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)'],
         borderWidth: 1,
@@ -218,14 +218,15 @@ const SalesDashboard = () => {
             <h3 className="text-lg font-semibold">
               Current Date and Time: {currentTime.toLocaleDateString()} {currentTime.toLocaleTimeString()}
             </h3>
-            <div className="flex items-center justify-center mb-8 h-96 w-96">
+            <div className="flex justify-evenly mb-8 h-96 w-96">
               <Doughnut data={chartData1} options={chartOptions1} />
+              <p className="mt-2 font-bold text-center text-2xl text-indigo-600">Total Top 5 Orders: {sortedDishes.slice(0, 5).reduce((acc, [, quantity]) => acc + quantity, 0)} orders</p>
+
             </div>
 
           </div>
           {sortedDishes.length > 0 && (
             <div className="mb-4">
-              <p className="mt-2 font-bold text-center text-2xl text-indigo-600">Total Top 5 Orders: {sortedDishes.slice(0, 5).reduce((acc, [, quantity]) => acc + quantity, 0)} orders</p>
               <h3 className="text-lg font-semibold mt-5">Dishes Ordered by Total Sales:</h3>
               <ul className="list-disc ml-5">
                 {sortedDishes.map(([dish, quantity], index) => (
