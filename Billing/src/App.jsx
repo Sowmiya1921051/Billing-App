@@ -83,7 +83,7 @@ function App() {
     <div>
       <BrowserRouter>
         {/* Render Dashboard component conditionally */}
-        {/* {isLoggedIn && <Dashboard isLoggedIn={isLoggedIn} onLogout={handleLogout} />}  */}
+        {isLoggedIn && <Dashboard isLoggedIn={isLoggedIn} onLogout={handleLogout} />} 
 
         <Routes>
           <Route
