@@ -61,6 +61,7 @@ import Sales from './components/Sales'
 import Review from './components/Review';
 import Account from './components/Account';
 import Payment from './components/Payment';
+import BarChart from './components/Barchart';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('token'));
@@ -82,7 +83,7 @@ function App() {
     <div>
       <BrowserRouter>
         {/* Render Dashboard component conditionally */}
-        {isLoggedIn && <Dashboard isLoggedIn={isLoggedIn} onLogout={handleLogout} />} 
+        {/* {isLoggedIn && <Dashboard isLoggedIn={isLoggedIn} onLogout={handleLogout} />}  */}
 
         <Routes>
           <Route
@@ -103,6 +104,7 @@ function App() {
           <Route path="/reviews" element={isLoggedIn ? <Review /> : <Navigate to="/" replace />} />
           <Route path="/account" element={isLoggedIn ? <Account /> : <Navigate to="/" replace />} />
           <Route path="/payment" element={isLoggedIn ? <Payment /> : <Navigate to="/" replace />} />
+          <Route path="/barchart" element={isLoggedIn ? <BarChart /> : <Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </div>
