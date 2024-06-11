@@ -32,6 +32,12 @@ const SalesDashboard = () => {
   const [monthlyTopDishes, setMonthlyTopDishes] = useState([]);
   const [monthlyContinuousDishes, setMonthlyContinuousDishes] = useState([]);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [selectedMonth, setSelectedMonth] = useState("");
+
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -113,11 +119,25 @@ const SalesDashboard = () => {
 
         return { month, ...data, topDishes, continuousDishes };
       });
-      setMonthlyReport(monthlyReportArray);
+
+      // Ensure all months are represented
+      const fullMonthlyReport = months.map(month => {
+        const report = monthlyReportArray.find(r => r.month.includes(month)) || {
+          month: `${month} ${new Date().getFullYear()}`,
+          totalOrders: 0,
+          totalRevenue: 0,
+          totalGST: 0,
+          topDishes: [],
+          continuousDishes: []
+        };
+        return report;
+      });
+
+      setMonthlyReport(fullMonthlyReport);
 
       // Extract top dishes and continuous dishes for each month
-      const topDishesPerMonth = monthlyReportArray.map(({ month, topDishes }) => ({ month, topDishes }));
-      const continuousDishesPerMonth = monthlyReportArray.map(({ month, continuousDishes }) => ({ month, continuousDishes }));
+      const topDishesPerMonth = fullMonthlyReport.map(({ month, topDishes }) => ({ month, topDishes }));
+      const continuousDishesPerMonth = fullMonthlyReport.map(({ month, continuousDishes }) => ({ month, continuousDishes }));
       setMonthlyTopDishes(topDishesPerMonth);
       setMonthlyContinuousDishes(continuousDishesPerMonth);
     }
@@ -140,26 +160,30 @@ const SalesDashboard = () => {
   }
 
   // Prepare data for the bar chart
+  const filteredReport = selectedMonth
+    ? monthlyReport.filter(report => report.month.includes(selectedMonth))
+    : monthlyReport;
+
   const chartData = {
-    labels: monthlyReport.map(report => report.month),
+    labels: filteredReport.map(report => report.month),
     datasets: [
       {
         label: 'Total Orders',
-        data: monthlyReport.map(report => report.totalOrders),
+        data: filteredReport.map(report => report.totalOrders),
         backgroundColor: 'rgba(54, 162, 235, 0.6)',
         borderColor: 'rgba(54, 162, 235, 1)',
         borderWidth: 1,
       },
       {
         label: 'Total Revenue',
-        data: monthlyReport.map(report => report.totalRevenue),
+        data: filteredReport.map(report => report.totalRevenue),
         backgroundColor: 'rgba(75, 192, 192, 0.6)',
         borderColor: 'rgba(75, 192, 192, 1)',
         borderWidth: 1,
       },
       {
         label: 'Total GST',
-        data: monthlyReport.map(report => report.totalGST),
+        data: filteredReport.map(report => report.totalGST),
         backgroundColor: 'rgba(255, 206, 86, 0.6)',
         borderColor: 'rgba(255, 206, 86, 1)',
         borderWidth: 1,
@@ -176,7 +200,7 @@ const SalesDashboard = () => {
   };
 
   const top5Dishes = sortedDishes.slice(0, 5);
-  const per = sortedDishes.slice(0, 5).reduce((acc, [, quantity]) => acc + quantity, 0)
+  const per = sortedDishes.slice(0, 5).reduce((acc, [, quantity]) => acc + quantity, 0);
   const chartData1 = {
     labels: top5Dishes.map(([dish]) => dish),
     datasets: [
@@ -199,9 +223,6 @@ const SalesDashboard = () => {
     },
   };
 
-
-
-
   return (
     <div className="min-h-screen flex flex-row">
       {/* Navbar */}
@@ -211,23 +232,22 @@ const SalesDashboard = () => {
 
       {/* Main Content */}
       <div className="flex flex-col flex-1 items-center justify-center mt-10">
+
         {/* Order Data */}
         <div className="bg-white shadow-xl border-indigo-600 border-4 rounded p-6 w-full max-w-4xl mb-8">
-          <h2 className="text-2xl font-bold mb-4">Order Data</h2>
+        <h2 className="text-2xl font-bold mb-4">Order Data</h2>
           <div className="mb-4">
             <h3 className="text-lg font-semibold">
               Current Date and Time: {currentTime.toLocaleDateString()} {currentTime.toLocaleTimeString()}
             </h3>
-            <div className="flex justify-evenly mb-8 h-96 w-96">
-              <Doughnut data={chartData1} options={chartOptions1} />
-              <p className="mt-2 font-bold text-center text-2xl text-indigo-600">Total Top 5 Orders: {sortedDishes.slice(0, 5).reduce((acc, [, quantity]) => acc + quantity, 0)} orders</p>
-
-            </div>
-
+          </div>
+          <div className="mb-8 h-96 w-96">
+            <Doughnut data={chartData1} options={chartOptions1} />
+            <p className="mt-5 font-bold text-center text-2xl text-indigo-600">Total Top 5 Orders: {sortedDishes.slice(0, 5).reduce((acc, [, quantity]) => acc + quantity, 0)} orders</p>
           </div>
           {sortedDishes.length > 0 && (
             <div className="mb-4">
-              <h3 className="text-lg font-semibold mt-5">Dishes Ordered by Total Sales:</h3>
+              <h3 className="text-lg font-semibold mt-20">Dishes Ordered by Total Sales:</h3>
               <ul className="list-disc ml-5">
                 {sortedDishes.map(([dish, quantity], index) => (
                   <li key={index} className="mt-2">{dish} - {quantity} orders</li>
@@ -265,10 +285,24 @@ const SalesDashboard = () => {
         {/* Monthly Report */}
         <div className="bg-white border-indigo-600 shadow-xl border-4 rounded p-6 w-full max-w-4xl mb-8">
           <h2 className="text-2xl font-bold mb-6 text-center">Monthly Report</h2>
+          <div className="mb-4">
+            <label htmlFor="monthSelect" className="block text-sm font-medium text-gray-700">Select Month:</label>
+            <select
+              id="monthSelect"
+              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+            >
+              <option value="">All Months</option>
+              {months.map((month) => (
+                <option key={month} value={month}>{month}</option>
+              ))}
+            </select>
+          </div>
           <div className="mb-8">
             <Bar data={chartData} options={chartOptions} />
           </div>
-          {monthlyReport.map((report, index) => (
+          {filteredReport.map((report, index) => (
             <div key={index} className="mb-4">
               <h3 className="text-lg font-semibold">{report.month}</h3>
               <p>Total Orders: {report.totalOrders}</p>
