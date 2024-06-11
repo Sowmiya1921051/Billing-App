@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const OrderedData = () => {
@@ -76,9 +76,9 @@ const OrderedData = () => {
               <tbody>
                 {order.orders.map((item) => (
                   <tr key={item._id.$oid} className="text-center">
-                    <td className="border px-4 py-2">{item.name}</td>
-                    <td className="border px-4 py-2">{item.quantity}</td>
-                    <td className="border px-4 py-2">{item.totalPrice}</td>
+                    <td className="border border-indigo-600 px-4 py-2">{item.name}</td>
+                    <td className="border border-indigo-600 px-4 py-2">{item.quantity}</td>
+                    <td className="border border-indigo-600 px-4 py-2">{item.totalPrice}</td>
                   </tr>
                 ))}
               </tbody>

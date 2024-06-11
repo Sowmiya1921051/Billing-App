@@ -103,6 +103,20 @@ const OrderListSchema = new mongoose.Schema({
 
 const OrderList = mongoose.model('OrderList', OrderListSchema);
 
+const orderSchema = new mongoose.Schema({
+  items: [
+    {
+      id: String,
+      name: String,
+      count: Number,
+      price: Number,
+    },
+  ],
+  totalPrice: Number,
+});
+
+const Order = mongoose.model('Order', orderSchema);
+
 // Function to get current date and time in the desired format
 function getCurrentDateTime() {
   let date_time = new Date();
@@ -115,6 +129,24 @@ function getCurrentDateTime() {
 
   return `${year}-${month}-${date} ${hours}:${minutes}:${seconds}`;
 }
+
+
+app.post('/api/orders', async (req, res) => {
+  const { items, totalPrice } = req.body;
+
+  const newOrder = new Order({
+    items,
+    totalPrice,
+  });
+
+  try {
+    const savedOrder = await newOrder.save();
+    res.status(201).json(savedOrder);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to save order', error });
+  }
+});
+
 
 // Update dish hidden status route
 app.put('/api/dishes/:id/hidden', async (req, res) => {
@@ -228,7 +260,14 @@ app.post('/api/orderedList', uploadOrderedList.single('image'), async (req, res)
   }
 });
 
-
+app.get('/api/orders', async (req, res) => {
+  try {
+    const orders = await Order.find();
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch orders', error });
+  }
+});
 
 // GET all dishes
 // GET all dishes that are not hidden

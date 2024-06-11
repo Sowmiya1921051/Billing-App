@@ -37,6 +37,9 @@ const Dashboard = () => {
         <Link className="flex items-center justify-center md:justify-start py-2.5 px-4 rounded transition duration-200 hover:bg-indigo-700 hover:text-white text-gray-400 w-full" to="/barchart">
           <FaCreditCard className="mr-0 md:mr-2" /> <span className="hidden md:inline">Bar chart</span>
         </Link>
+        <Link className="flex items-center justify-center md:justify-start py-2.5 px-4 rounded transition duration-200 hover:bg-indigo-700 hover:text-white text-gray-400 w-full" to="/KOT">
+          <FaCreditCard className="mr-0 md:mr-2" /> <span className="hidden md:inline">KOT</span>
+        </Link>
         <Link className="flex items-center justify-center md:justify-start py-2.5 px-4 rounded transition duration-200 hover:bg-indigo-700 hover:text-white text-gray-400 w-full" to="/">
           <FaSignInAlt className="mr-0 md:mr-2" /> <span className="hidden md:inline">Sign Up</span>
         </Link>
