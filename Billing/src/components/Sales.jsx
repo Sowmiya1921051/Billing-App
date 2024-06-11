@@ -1,5 +1,26 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Bar, Doughnut } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const SalesDashboard = () => {
   const [orders, setOrders] = useState([]);
@@ -11,6 +32,12 @@ const SalesDashboard = () => {
   const [monthlyTopDishes, setMonthlyTopDishes] = useState([]);
   const [monthlyContinuousDishes, setMonthlyContinuousDishes] = useState([]);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [selectedMonth, setSelectedMonth] = useState("");
+
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -92,11 +119,25 @@ const SalesDashboard = () => {
 
         return { month, ...data, topDishes, continuousDishes };
       });
-      setMonthlyReport(monthlyReportArray);
+
+      // Ensure all months are represented
+      const fullMonthlyReport = months.map(month => {
+        const report = monthlyReportArray.find(r => r.month.includes(month)) || {
+          month: `${month} ${new Date().getFullYear()}`,
+          totalOrders: 0,
+          totalRevenue: 0,
+          totalGST: 0,
+          topDishes: [],
+          continuousDishes: []
+        };
+        return report;
+      });
+
+      setMonthlyReport(fullMonthlyReport);
 
       // Extract top dishes and continuous dishes for each month
-      const topDishesPerMonth = monthlyReportArray.map(({ month, topDishes }) => ({ month, topDishes }));
-      const continuousDishesPerMonth = monthlyReportArray.map(({ month, continuousDishes }) => ({ month, continuousDishes }));
+      const topDishesPerMonth = fullMonthlyReport.map(({ month, topDishes }) => ({ month, topDishes }));
+      const continuousDishesPerMonth = fullMonthlyReport.map(({ month, continuousDishes }) => ({ month, continuousDishes }));
       setMonthlyTopDishes(topDishesPerMonth);
       setMonthlyContinuousDishes(continuousDishesPerMonth);
     }
@@ -118,26 +159,95 @@ const SalesDashboard = () => {
     return <div className="min-h-screen flex items-center justify-center">{error}</div>;
   }
 
+  // Prepare data for the bar chart
+  const filteredReport = selectedMonth
+    ? monthlyReport.filter(report => report.month.includes(selectedMonth))
+    : monthlyReport;
+
+  const chartData = {
+    labels: filteredReport.map(report => report.month),
+    datasets: [
+      {
+        label: 'Total Orders',
+        data: filteredReport.map(report => report.totalOrders),
+        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1,
+      },
+      {
+        label: 'Total Revenue',
+        data: filteredReport.map(report => report.totalRevenue),
+        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 1,
+      },
+      {
+        label: 'Total GST',
+        data: filteredReport.map(report => report.totalGST),
+        backgroundColor: 'rgba(255, 206, 86, 0.6)',
+        borderColor: 'rgba(255, 206, 86, 1)',
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  };
+
+  const top5Dishes = sortedDishes.slice(0, 5);
+  const per = sortedDishes.slice(0, 5).reduce((acc, [, quantity]) => acc + quantity, 0);
+  const chartData1 = {
+    labels: top5Dishes.map(([dish]) => dish),
+    datasets: [
+      {
+        label: 'Total Orders',
+        data: top5Dishes.map(([_, quantity]) => quantity * 100 / per),
+        backgroundColor: ['rgba(255, 99, 132, 0.6)', 'rgba(54, 162, 235, 0.6)', 'rgba(255, 206, 86, 0.6)', 'rgba(75, 192, 192, 0.6)', 'rgba(153, 102, 255, 0.6)'],
+        borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)'],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const chartOptions1 = {
+    plugins: {
+      legend: {
+        display: true,
+        position: 'bottom',
+      },
+    },
+  };
+
   return (
-    <div className="min-h-screen  flex flex-row">
+    <div className="min-h-screen flex flex-row">
       {/* Navbar */}
-      <div className=" text-white w-64 p-6">
-    
+      <div className="text-white w-64 p-6">
+        {/* Navbar content */}
       </div>
 
       {/* Main Content */}
       <div className="flex flex-col flex-1 items-center justify-center mt-10">
+
         {/* Order Data */}
         <div className="bg-white shadow-xl border-indigo-600 border-4 rounded p-6 w-full max-w-4xl mb-8">
-          <h2 className="text-2xl font-bold mb-4">Order Data</h2>
+        <h2 className="text-2xl font-bold mb-4">Order Data</h2>
           <div className="mb-4">
             <h3 className="text-lg font-semibold">
               Current Date and Time: {currentTime.toLocaleDateString()} {currentTime.toLocaleTimeString()}
             </h3>
           </div>
+          <div className="mb-8 h-96 w-96">
+            <Doughnut data={chartData1} options={chartOptions1} />
+            <p className="mt-5 font-bold text-center text-2xl text-indigo-600">Total Top 5 Orders: {sortedDishes.slice(0, 5).reduce((acc, [, quantity]) => acc + quantity, 0)} orders</p>
+          </div>
           {sortedDishes.length > 0 && (
             <div className="mb-4">
-              <h3 className="text-lg font-semibold">Dishes Ordered by Total Sales:</h3>
+              <h3 className="text-lg font-semibold mt-20">Dishes Ordered by Total Sales:</h3>
               <ul className="list-disc ml-5">
                 {sortedDishes.map(([dish, quantity], index) => (
                   <li key={index} className="mt-2">{dish} - {quantity} orders</li>
@@ -146,7 +256,7 @@ const SalesDashboard = () => {
             </div>
           )}
         </div>
-        
+
         {/* Sales Report */}
         <div className="bg-white shadow-xl border-indigo-600 border-4 rounded p-6 w-full max-w-4xl mb-8">
           <h2 className="text-2xl font-bold mb-6 text-center">Sales Report</h2>
@@ -155,7 +265,7 @@ const SalesDashboard = () => {
               <tr>
                 <th className="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                 <th className="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                <th className="px-4 py-2 bg-gray-50 text-left text-xs font-medium                 text-gray-500 uppercase tracking-wider">Quantity</th>
+                <th className="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
                 <th className="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Price</th>
               </tr>
             </thead>
@@ -175,7 +285,24 @@ const SalesDashboard = () => {
         {/* Monthly Report */}
         <div className="bg-white border-indigo-600 shadow-xl border-4 rounded p-6 w-full max-w-4xl mb-8">
           <h2 className="text-2xl font-bold mb-6 text-center">Monthly Report</h2>
-          {monthlyReport.map((report, index) => (
+          <div className="mb-4">
+            <label htmlFor="monthSelect" className="block text-sm font-medium text-gray-700">Select Month:</label>
+            <select
+              id="monthSelect"
+              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+            >
+              <option value="">All Months</option>
+              {months.map((month) => (
+                <option key={month} value={month}>{month}</option>
+              ))}
+            </select>
+          </div>
+          <div className="mb-8">
+            <Bar data={chartData} options={chartOptions} />
+          </div>
+          {filteredReport.map((report, index) => (
             <div key={index} className="mb-4">
               <h3 className="text-lg font-semibold">{report.month}</h3>
               <p>Total Orders: {report.totalOrders}</p>
@@ -206,4 +333,3 @@ const SalesDashboard = () => {
 };
 
 export default SalesDashboard;
-
