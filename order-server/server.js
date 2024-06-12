@@ -120,7 +120,11 @@ const Order = mongoose.model('Order', orderSchema);
 const TableOrderSchema = new mongoose.Schema({
   orders: Array,
   tableNumber: Number,
-  place: String
+  place: String,
+  status: {
+    type: String,
+    default: null // Assuming the default status is null
+  }
 });
 
 const TableOrder = mongoose.model('TableOrder', TableOrderSchema);
@@ -129,11 +133,12 @@ app.use(express.json());
 
 app.post('/api/tableOrders', async (req, res) => {
   try {
-    const { orders, tableNumber, place } = req.body;
+    const { orders, tableNumber, place, status } = req.body; // Add status here
     const newTableOrder = new TableOrder({
       orders,
       tableNumber,
-      place
+      place,
+      status // Include status field here
     });
 
     await newTableOrder.save();
@@ -146,6 +151,7 @@ app.post('/api/tableOrders', async (req, res) => {
 });
 
 
+
 app.get('/api/tableOrders', async (req, res) => {
   try {
     // Fetch all table orders from the database
@@ -156,15 +162,19 @@ app.get('/api/tableOrders', async (req, res) => {
       return res.status(404).json({ message: 'No table orders found' });
     }
 
-    // If table orders are found, return them as a JSON response
-    res.status(200).json(tableOrders);
+    // If table orders are found, return them as a JSON response with status
+    const tableOrdersWithStatus = tableOrders.map(order => ({
+      ...order.toObject(),
+      status: order.status || null // Include status field in each order
+    }));
+
+    res.status(200).json(tableOrdersWithStatus);
   } catch (error) {
     // If an error occurs during the process, log the error and return a 500 status with an error message
     console.error('Error fetching table orders:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
-
 
 // Function to get current date and time in the desired format
 function getCurrentDateTime() {
