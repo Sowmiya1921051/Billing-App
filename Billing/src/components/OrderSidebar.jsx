@@ -41,7 +41,7 @@ const OrderSidebar = ({ orders, fetchDishes, tableNumber, place, setTableNumber,
       formData.append('orders', JSON.stringify(orderDetails));
       formData.append('tableNumber', tableNumber);
       formData.append('place', place);
-      formData.append('status', null);
+      formData.append('status', 'Pending');
 
       const formResponse = await axios.post('http://localhost:5000/api/orderedList', formData, {
         headers: {
@@ -56,7 +56,7 @@ const OrderSidebar = ({ orders, fetchDishes, tableNumber, place, setTableNumber,
         orders: orderDetails,
         tableNumber: tableNumber,
         place: place,
-        status: null
+        status :'Pending'
       };
 
       const orderResponse = await axios.post('http://localhost:5000/api/tableOrders', orderData, {

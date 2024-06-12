@@ -20,8 +20,12 @@ function Table() {
     // Convert place to lowercase to match the data
     place = place.toLowerCase();
   
-    // Filter orders based on table number and place
-    const tableOrders = orders.filter(order => order.tableNumber === tableNumber && order.place.toLowerCase() === place);
+    // Filter orders based on table number, place, and status
+    const tableOrders = orders.filter(order => 
+      order.tableNumber === tableNumber && 
+      order.place.toLowerCase() === place &&
+      order.status === 'Pending'
+    );
   
     if (tableOrders.length > 0) {
       // Generate popup text with table number, place, and orders
@@ -38,7 +42,7 @@ function Table() {
       setPopupText(popupContent);
     } else {
       // No orders found
-      setPopupText([`No orders found for ${place} - Table ${tableNumber}`]);
+      setPopupText([`No pending orders found for ${place} - Table ${tableNumber}`]);
     }
   };
   

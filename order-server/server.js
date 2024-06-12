@@ -103,28 +103,19 @@ const OrderListSchema = new mongoose.Schema({
 
 const OrderList = mongoose.model('OrderList', OrderListSchema);
 
-const orderSchema = new mongoose.Schema({
-  items: [
-    {
-      id: String,
-      name: String,
-      count: Number,
-      price: Number,
-    },
-  ],
+const OrderSchema = new mongoose.Schema({
+  items: Array,
   totalPrice: Number,
+  status: { type: String, default: 'Pending' }
 });
 
-const Order = mongoose.model('Order', orderSchema);
+const Order = mongoose.model('Order', OrderSchema);
 
 const TableOrderSchema = new mongoose.Schema({
   orders: Array,
   tableNumber: Number,
   place: String,
-  status: {
-    type: String,
-    default: null // Assuming the default status is null
-  }
+  status: { type: String, default: 'Pending' }
 });
 
 const TableOrder = mongoose.model('TableOrder', TableOrderSchema);
@@ -176,6 +167,25 @@ app.get('/api/tableOrders', async (req, res) => {
   }
 });
 
+app.put('/api/tableOrders/:id/status', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const tableOrder = await TableOrder.findByIdAndUpdate(id, { status }, { new: true });
+
+    if (!tableOrder) {
+      return res.status(404).json({ message: 'Table order not found' });
+    }
+
+    res.status(200).json(tableOrder);
+  } catch (error) {
+    console.error('Error updating table order status:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
 // Function to get current date and time in the desired format
 function getCurrentDateTime() {
   let date_time = new Date();
@@ -204,6 +214,25 @@ app.post('/api/orders', async (req, res) => {
     res.status(201).json(savedOrder);
   } catch (error) {
     res.status(500).json({ message: 'Failed to save order', error });
+  }
+});
+
+
+app.put('/api/orders/:id/status', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const order = await Order.findByIdAndUpdate(id, { status }, { new: true });
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    res.status(200).json(order);
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 
