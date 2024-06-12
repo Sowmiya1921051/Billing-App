@@ -146,6 +146,26 @@ app.post('/api/tableOrders', async (req, res) => {
 });
 
 
+app.get('/api/tableOrders', async (req, res) => {
+  try {
+    // Fetch all table orders from the database
+    const tableOrders = await TableOrder.find();
+
+    // If there are no table orders, return a 404 status with an appropriate message
+    if (!tableOrders || tableOrders.length === 0) {
+      return res.status(404).json({ message: 'No table orders found' });
+    }
+
+    // If table orders are found, return them as a JSON response
+    res.status(200).json(tableOrders);
+  } catch (error) {
+    // If an error occurs during the process, log the error and return a 500 status with an error message
+    console.error('Error fetching table orders:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
 // Function to get current date and time in the desired format
 function getCurrentDateTime() {
   let date_time = new Date();

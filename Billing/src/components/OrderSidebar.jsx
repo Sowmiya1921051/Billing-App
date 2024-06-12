@@ -32,7 +32,8 @@ const OrderSidebar = ({ orders, fetchDishes, tableNumber, place, setTableNumber,
         name: order.name,
         quantity: order.count,
         totalPrice: (order.price * order.count).toFixed(2),
-        gstPrice: ((order.price * order.count) * 0.18).toFixed(2) // Assuming GST rate is 18%
+        gstPrice: ((order.price * order.count) * 0.18).toFixed(2), // Assuming GST rate is 18%
+        status: null // Add status property with initial value null
       }));
 
       const formData = new FormData();
@@ -92,32 +93,6 @@ const OrderSidebar = ({ orders, fetchDishes, tableNumber, place, setTableNumber,
   return (
     <div className="order-sidebar bg-white shadow-lg p-4 top-0 right-0 bottom-0 overflow-y-auto">
       <h2 className="text-2xl font-bold mb-4">Your Orders</h2>
-      {/* <div className="mb-4">
-        <label htmlFor="tableNumber" className="block text-sm font-medium text-gray-700">Table Number</label>
-        <select
-          id="tableNumber"
-          value={tableNumber}
-          onChange={(e) => setTableNumber(parseInt(e.target.value))}
-          className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-        >
-          {[...Array(7)].map((_, i) => (
-            <option key={i + 1} value={i + 1}>{i + 1}</option>
-          ))}
-        </select>
-      </div>
-      <div className="mb-4">
-        <label htmlFor="place" className="block text-sm font-medium text-gray-700">Place</label>
-        <select
-          id="place"
-          value={place}
-          onChange={(e) => setPlace(e.target.value)}
-          className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-        >
-          <option value="AC">AC</option>
-          <option value="Dine In">Dine In</option>
-          <option value="Round Table">Round Table</option>
-        </select>
-      </div> */}
       <div ref={orderTableRef}>
         <div className="mb-4 text-center">
           <h3 className="text-xl font-bold">Restaurant Name</h3>
@@ -130,13 +105,12 @@ const OrderSidebar = ({ orders, fetchDishes, tableNumber, place, setTableNumber,
               <th>Name</th>
               <th>Quantity</th>
               <th>Total Price</th>
-              {/* <th>GST Price</th> */}
             </tr>
           </thead>
           <tbody>
             {Object.keys(orders).length === 0 ? (
               <tr>
-                <td colSpan="4">No orders yet.</td>
+                <td colSpan="3">No orders yet.</td>
               </tr>
             ) : (
               Object.entries(orders).map(([id, order]) => (
@@ -144,7 +118,6 @@ const OrderSidebar = ({ orders, fetchDishes, tableNumber, place, setTableNumber,
                   <td>{order.name}</td>
                   <td>{order.count}</td>
                   <td>${(order.price * order.count).toFixed(2)}</td>
-                  {/* <td>${((order.price * order.count) * 0.18).toFixed(2)}</td> */}
                 </tr>
               ))
             )}
@@ -164,20 +137,6 @@ const OrderSidebar = ({ orders, fetchDishes, tableNumber, place, setTableNumber,
       {submitted && (
         <p className="mt-4 text-green-600">Order submitted successfully!</p>
       )}
-      {/* <div className="text-center mt-5">
-        {imageUrl && (
-          <div>
-            <p className="font-bold">Image URL:</p>
-            <input
-              type="text"
-              className="mt-2 p-2 border border-gray-300 rounded w-full"
-              value={imageUrl}
-              readOnly
-            />
-            <img src={imageUrl} alt="Captured order" className="mt-4 border border-gray-300 rounded" />
-          </div>
-        )}
-      </div> */}
     </div>
   );
 };
