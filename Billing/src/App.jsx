@@ -1,51 +1,3 @@
-// import React, { useState } from 'react';
-// import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-// import MenuList from './components/MenuList';
-// import ViewOrders from './components/viewOrders';
-// import OrderPage from './components/OrderPage';
-// import Admin from './components/adminComponent';
-// import Signup from './components/Signup';
-// import Login from './components/Login';
-// import Dashboard from './components/Dashboard'
-
-// function App() {
-//   const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('token'));
-
-//   const handleSignup = () => {
-//     setIsLoggedIn(true);
-//   };
-
-//   const handleLogin = () => {
-//     setIsLoggedIn(true);
-//   };
-
-//   const handleLogout = () => {
-//     localStorage.removeItem('token');
-//     setIsLoggedIn(false);
-//   };
-
-//   return (
-//     <div>
-//       <BrowserRouter>
-//         <Routes>
-//           <Route path="/" element={!isLoggedIn ? <Signup onSignup={handleSignup} /> : <Navigate to="/login" replace />} />
-//           <Route path="/login" element={isLoggedIn ? <Navigate to="/orders" replace /> : <Login onLogin={handleLogin} />} />
-//           <Route path="/orders" element={<ViewOrders onLogout={handleLogout} />} />
-//           <Route path="/menulist" element={isLoggedIn ? <MenuList /> : <Navigate to="/" replace />} />
-//           <Route path="/orderpage" element={isLoggedIn ? <OrderPage /> : <Navigate to="/" replace />} />
-//           <Route path="/adminComponent" element={isLoggedIn ? <Admin /> : <Navigate to="/" replace />} />
-//           <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Navigate to="/" replace />} />
-//         </Routes>
-//       </BrowserRouter>
-//     </div>
-//   );
-// }
-
-// export default App;
-
-
-
-
 import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import MenuList from './components/MenuList';
@@ -63,9 +15,12 @@ import Account from './components/Account';
 import Payment from './components/Payment';
 import BarChart from './components/Barchart';
 import KOT from './components/KOT';
+import Table from './components/Table';
+import TableOrders from './components/tableOrders';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('token'));
+  const [selectedValues, setSelectedValues] = useState(null); // Moved state declaration here
 
   const handleSignup = () => {
     setIsLoggedIn(true);
@@ -107,6 +62,8 @@ function App() {
           <Route path="/payment" element={isLoggedIn ? <Payment /> : <Navigate to="/" replace />} />
           <Route path="/barchart" element={isLoggedIn ? <BarChart /> : <Navigate to="/" replace />} />
           <Route path="/KOT" element={isLoggedIn ? <KOT /> : <Navigate to="/" replace />} />
+          <Route path="/table" element={isLoggedIn ? <Table {...selectedValues} /> : <Navigate to="/" replace />} />
+          <Route path="/tableOrders" element={isLoggedIn ? <TableOrders setSelectedValues={setSelectedValues} /> : <Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </div>
@@ -114,4 +71,3 @@ function App() {
 }
 
 export default App;
-

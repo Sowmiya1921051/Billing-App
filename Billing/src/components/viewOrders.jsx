@@ -16,6 +16,8 @@ function DishList() {
   const [categoryTitle, setCategoryTitle] = useState('Dishes');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [tableNumber, setTableNumber] = useState(1);
+  const [place, setPlace] = useState('AC');
 
   const fetchDishes = async () => {
     setLoading(true);
@@ -120,6 +122,36 @@ function DishList() {
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-6">
             <h2 className="text-3xl font-bold my-8">{categoryTitle}</h2>
+
+            <div className="flex flex-col items-center mb-8">
+              <div className="mb-4">
+                <label htmlFor="tableNumber" className="block text-sm font-medium text-gray-700">Table Number</label>
+                <select
+                  id="tableNumber"
+                  value={tableNumber}
+                  onChange={(e) => setTableNumber(parseInt(e.target.value))}
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                >
+                  {[...Array(7)].map((_, i) => (
+                    <option key={i + 1} value={i + 1}>{i + 1}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="mb-4">
+                <label htmlFor="place" className="block text-sm font-medium text-gray-700">Place</label>
+                <select
+                  id="place"
+                  value={place}
+                  onChange={(e) => setPlace(e.target.value)}
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                >
+                  <option value="AC">AC</option>
+                  <option value="Dine In">Dine In</option>
+                  <option value="Round Table">Round Table</option>
+                </select>
+              </div>
+            </div>
+
             <div className="flex justify-center">
               <ul className="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredDishes.map(dish => (
@@ -146,7 +178,7 @@ function DishList() {
         </main>
       </div>
       
-      <OrderSidebar orders={orders} fetchDishes={fetchDishes} />
+      <OrderSidebar orders={orders} fetchDishes={fetchDishes} tableNumber={tableNumber} place={place} setTableNumber={setTableNumber} setPlace={setPlace} />
       
     </div>
   );

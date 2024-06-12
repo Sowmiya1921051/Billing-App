@@ -117,6 +117,35 @@ const orderSchema = new mongoose.Schema({
 
 const Order = mongoose.model('Order', orderSchema);
 
+const TableOrderSchema = new mongoose.Schema({
+  orders: Array,
+  tableNumber: Number,
+  place: String
+});
+
+const TableOrder = mongoose.model('TableOrder', TableOrderSchema);
+
+app.use(express.json());
+
+app.post('/api/tableOrders', async (req, res) => {
+  try {
+    const { orders, tableNumber, place } = req.body;
+    const newTableOrder = new TableOrder({
+      orders,
+      tableNumber,
+      place
+    });
+
+    await newTableOrder.save();
+
+    res.status(200).json({ message: 'Order saved successfully' });
+  } catch (error) {
+    console.error('Error saving order:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
 // Function to get current date and time in the desired format
 function getCurrentDateTime() {
   let date_time = new Date();
@@ -129,6 +158,7 @@ function getCurrentDateTime() {
 
   return `${year}-${month}-${date} ${hours}:${minutes}:${seconds}`;
 }
+
 
 
 app.post('/api/orders', async (req, res) => {
