@@ -186,6 +186,58 @@ app.put('/api/tableOrders/:id/status', async (req, res) => {
 });
 
 
+app.put('/api/tableOrders/addOrder', async (req, res) => {
+  try {
+    const { orders, tableNumber, place } = req.body;
+
+    // Find the existing table order by table number
+    const existingOrder = await TableOrder.findOne({ tableNumber, place });
+
+    if (existingOrder) {
+      // Update existing order by merging new orders with existing ones
+      orders.forEach(newOrder => {
+        const existingOrderIndex = existingOrder.orders.findIndex(order => order.name === newOrder.name);
+        if (existingOrderIndex >= 0) {
+          // If the order already exists, update the quantity and prices
+          existingOrder.orders[existingOrderIndex].quantity += newOrder.quantity;
+          existingOrder.orders[existingOrderIndex].totalPrice = (
+            parseFloat(existingOrder.orders[existingOrderIndex].totalPrice) +
+            parseFloat(newOrder.totalPrice)
+          ).toFixed(2);
+          existingOrder.orders[existingOrderIndex].gstPrice = (
+            parseFloat(existingOrder.orders[existingOrderIndex].gstPrice) +
+            parseFloat(newOrder.gstPrice)
+          ).toFixed(2);
+        } else {
+          // If the order does not exist, add it to the orders array
+          existingOrder.orders.push(newOrder);
+        }
+      });
+
+      // Save the updated order
+      await existingOrder.save();
+
+      res.status(200).json({ message: 'Order updated successfully', order: existingOrder });
+    } else {
+      // If no existing order is found, create a new one
+      const newTableOrder = new TableOrder({
+        orders,
+        tableNumber,
+        place,
+        status: 'Pending'
+      });
+
+      await newTableOrder.save();
+
+      res.status(200).json({ message: 'Order saved successfully', order: newTableOrder });
+    }
+  } catch (error) {
+    console.error('Error updating order:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
 // Function to get current date and time in the desired format
 function getCurrentDateTime() {
   let date_time = new Date();

@@ -21,53 +21,52 @@ const OrderSidebar = ({ orders, fetchDishes, tableNumber, place, setTableNumber,
     const dataUrl = await handleCapture();
     return dataUrl;
   };
-
   const handleSubmit = async () => {
     setSubmitted(true);
     try {
       const dataUrl = await handleCombinedFunctions();
       const blob = await (await fetch(dataUrl)).blob();
       const file = new File([blob], 'order.png', { type: 'image/png' });
-
+  
       const orderDetails = Object.entries(orders).map(([id, order]) => ({
         name: order.name,
         quantity: order.count,
         totalPrice: (order.price * order.count).toFixed(2),
         gstPrice: ((order.price * order.count) * 0.18).toFixed(2) // Assuming GST rate is 18%
       }));
-
+  
       const formData = new FormData();
       formData.append('image', file);
       formData.append('orders', JSON.stringify(orderDetails));
       formData.append('tableNumber', tableNumber);
       formData.append('place', place);
       formData.append('status', 'Pending');
-
+  
       const formResponse = await axios.post('http://localhost:5000/api/orderedList', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
-
+  
       console.log('Image URL and orders submitted:', dataUrl);
       console.log('Server response (form):', formResponse.data);
-
+  
       const orderData = {
         orders: orderDetails,
         tableNumber: tableNumber,
         place: place,
-        status :'Pending'
+        status: 'Pending'
       };
-
-      const orderResponse = await axios.post('http://localhost:5000/api/tableOrders', orderData, {
+  
+      const orderResponse = await axios.put('http://localhost:5000/api/tableOrders/addOrder', orderData, {
         headers: {
           'Content-Type': 'application/json'
         }
       });
-
+  
       console.log('Orders submitted:', orderData);
       console.log('Server response (orders):', orderResponse.data);
-
+  
       fetchDishes(); // Fetch the latest dishes after successful submission
     } catch (error) {
       console.error('Error submitting image URL and orders:', error);
