@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import MenuList from './components/MenuList';
 import ViewOrders from './components/viewOrders';
@@ -17,6 +17,7 @@ import BarChart from './components/Barchart';
 import KOT from './components/KOT';
 import Table from './components/Table';
 import TableOrders from './components/tableOrders';
+import Bill from './components/Bill'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('token'));
@@ -64,6 +65,8 @@ function App() {
           <Route path="/KOT" element={isLoggedIn ? <KOT /> : <Navigate to="/" replace />} />
           <Route path="/table" element={isLoggedIn ? <Table {...selectedValues} /> : <Navigate to="/" replace />} />
           <Route path="/tableOrders" element={isLoggedIn ? <TableOrders setSelectedValues={setSelectedValues} /> : <Navigate to="/" replace />} />
+          <Route path="/bill" element={isLoggedIn ? <Bill /> : <Navigate to="/" replace />} />
+
         </Routes>
       </BrowserRouter>
     </div>
