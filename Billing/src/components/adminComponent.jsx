@@ -25,7 +25,7 @@ function OrderedListImages() {
 
     fetchImages(); // Initial fetch
 
-    const intervalId = setInterval(fetchImages, 1000); // Fetch every 60 seconds
+    const intervalId = setInterval(fetchImages, 60000); // Fetch every 60 seconds
 
     // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
@@ -41,21 +41,29 @@ function OrderedListImages() {
     printWindow.document.write(`
       <div>
         <p>ID: ${id}</p>
-        <img src="${imageUrl}" style="max-width:100%; height:auto;" />
+        <img id="printImage" src="${imageUrl}" style="max-width:100%; height:auto;" />
       </div>
     `);
     printWindow.document.close();
-    printWindow.print();
-    const updatedOrderedImages = [...orderedImages, id];
-    setOrderedImages(updatedOrderedImages);
-    localStorage.setItem('orderedImages', JSON.stringify(updatedOrderedImages));
 
-    // Update order status to 'Ordered'
-    try {
-      await axios.put(`http://localhost:5000/api/orderedList/${id}`, { status: 'Ordered' });
-    } catch (error) {
-      console.error('Error updating order status:', error);
-    }
+    // Ensure the image is fully loaded before printing
+    printWindow.document.getElementById('printImage').onload = async () => {
+      printWindow.print();
+
+      const updatedOrderedImages = [...orderedImages, id];
+      setOrderedImages(updatedOrderedImages);
+      localStorage.setItem('orderedImages', JSON.stringify(updatedOrderedImages));
+
+      // Update order status to 'Ordered'
+      try {
+        await axios.put(`http://localhost:5000/api/orderedList/${id}`, { status: 'Ordered' });
+      } catch (error) {
+        console.error('Error updating order status:', error);
+      }
+
+      // Close the print window after printing
+      printWindow.close();
+    };
   };
 
   const handleCancel = async (id) => {
