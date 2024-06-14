@@ -110,8 +110,6 @@ const Bill = () => {
     newWindow.print();
   };
 
-  
-
   return (
     <div className="container mx-auto flex">
       {/* Left sidebar for navigation */}
@@ -125,38 +123,7 @@ const Bill = () => {
           <h1 className="text-3xl font-bold mb-4 text-center text-blue-600">Orders</h1>
           {orders.length > 0 ? (
             orders.map(order => (
-              <div key={order._id} id={`order-${order._id}`} className="mb-6 mx-auto max-w-xs border rounded-lg overflow-hidden shadow-lg flex flex-col print-container" style={{ marginBottom: '1rem' }}>
-                <div className="bg-blue-200 p-4 flex-1">
-                  <div className="text-center mb-4">
-                    <h1 className="text-3xl font-bold mb-2">Restaurant Name</h1>
-                    <p>123 Main Street, City, Country</p>
-                    <p>Contact: +123 456 7890</p>
-                  </div>
-                  <div className="border-b mb-4 pb-4">
-                    <div className="grid grid-cols-3 gap-4 font-bold mb-2">
-                      <span>Name</span>
-                      <span>Quantity</span>
-                      <span>Total Price</span>
-                    </div>
-                    {order.items && order.items.map(item => (
-                      <div key={item.name} className="grid grid-cols-3 gap-4 mb-2">
-                        <span>{item.name}</span>
-                        <span>{item.count}</span>
-                        <span>${item.price}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="text-right font-bold">
-                    <p>Total Price: ${calculateTotalPrice(order.items)}</p>
-                    <p>Total Price with GST: ${calculateTotalWithGST(order.items)}</p>
-                  </div>
-                  <div className="flex justify-end mt-4">
-                    <button onClick={() => handlePrint(`order-${order._id}`)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mr-4 rounded print-button screen-only">
-                      Bill
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <OrderContainer key={order._id} order={order} calculateTotalPrice={calculateTotalPrice} calculateTotalWithGST={calculateTotalWithGST} handlePrint={handlePrint} />
             ))
           ) : (
             <p>No completed orders.</p>
@@ -167,43 +134,7 @@ const Bill = () => {
           <h1 className="text-3xl font-bold mb-4 text-center text-green-600">Table Orders</h1>
           {tableOrders.length > 0 ? (
             tableOrders.map(tableOrder => (
-              <div key={tableOrder._id} id={`table-order-${tableOrder._id}`} className="mb-6 mx-auto max-w-xs border rounded-lg overflow-hidden shadow-lg flex flex-col print-container" style={{ marginBottom: '1rem' }}>
-                <div className="bg-green-200 p-4 flex-1">
-                  <div className="text-center mb-4">
-                    <h1 className="text-3xl font-bold mb-2">Restaurant Name</h1>
-                    <p>123 Main Street, City, Country</p>
-                    <p>Contact: +123 456 7890</p>
-                  </div>
-                  <div className="text-center justify-evenly mb-4 flex">
-                    <h1 className=" mb-2 font-semibold">Place: {tableOrder.place}</h1>
-                    <p className=" mb-2 font-semibold">Table No: {tableOrder.tableNumber}</p>
-                  </div>
-                  <div className="border-b mb-4 pb-4">
-                    <div className="grid grid-cols-3 gap-4 font-bold mb-2">
-                      <span>Name</span>
-                      <span>Quantity</span>
-                      <span>Total Price</span>
-                    </div>
-                    {tableOrder.orders && tableOrder.orders.map(item => (
-                      <div key={item.name} className="grid grid-cols-3 gap-4 mb-2">
-                        <span>{item.name}</span>
-                        <span>{item.quantity}</span>
-                        <span>${item.totalPrice}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="text-right font-bold">
-                    <p>Total Price: ${calculateTotalPrice(tableOrder.orders)}</p>
-                    <p>Total Price with GST: ${calculateTotalWithGST(tableOrder.orders)}</p>
-                  </div>
-                  <div className="flex justify-end mt-4">
-                    <button onClick={() => handlePrint(`table-order-${tableOrder._id}`)} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 mr-4 rounded print-button screen-only">
-                      Bill
-                    </button>
-                    
-                  </div>
-                </div>
-              </div>
+              <TableOrderContainer key={tableOrder._id} tableOrder={tableOrder} calculateTotalPrice={calculateTotalPrice} calculateTotalWithGST={calculateTotalWithGST} handlePrint={handlePrint} />
             ))
           ) : (
             <p>No completed table orders.</p>
@@ -214,4 +145,158 @@ const Bill = () => {
   );
 };
 
+// eslint-disable-next-line react/prop-types
+const OrderContainer = ({ order, calculateTotalPrice, calculateTotalWithGST, handlePrint }) => {
+  const [cashGiven, setCashGiven] = useState(0);
+  const [change, setChange] = useState(null);
+  const [cashInput, setCashInput] = useState('');
+
+  const handleCashPayment = () => {
+    const cashReceived = parseFloat(cashInput);
+    if (!isNaN(cashReceived)) {
+      const totalPriceWithGST = parseFloat(calculateTotalWithGST(order.items));
+      const changeToReturn = (cashReceived - totalPriceWithGST).toFixed(2);
+      setCashGiven(cashReceived);
+      setChange(changeToReturn);
+    } else {
+      alert('Please enter a valid cash amount.');
+    }
+  };
+
+  return (
+    <div id={`order-${order._id}`} className="mb-6 mx-auto max-w-xs border rounded-lg overflow-hidden shadow-lg flex flex-col print-container" style={{ marginBottom: '1rem' }}>
+      <div className="bg-blue-200 p-4 flex-1">
+        <div className="text-center mb-4">
+          <h1 className="text-3xl font-bold mb-2">Restaurant Name</h1>
+          <p>123 Main Street, City, Country</p>
+          <p>Contact: +123 456 7890</p>
+        </div>
+        <div className="border-b mb-4 pb-4">
+          <div className="grid grid-cols-3 gap-4 font-bold mb-2">
+            <span>Name</span>
+            <span>Quantity</span>
+            <span>Total Price</span>
+          </div>
+          {order.items && order.items.map(item => (
+            <div key={item.name} className="grid grid-cols-3 gap-4 mb-2">
+              <span>{item.name}</span>
+              <span>{item.count}</span>
+              <span>${item.price}</span>
+            </div>
+          ))}
+        </div>
+        <div className="text-right font-bold">
+          <p>Total Price: ${calculateTotalPrice(order.items)}</p>
+          <p>Total Price with GST: ${calculateTotalWithGST(order.items)}</p>
+        </div>
+        <div className=" mt-4">
+          <button onClick={() => handlePrint(`order-${order._id}`)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mr-4 rounded print-button screen-only">
+            Bill
+          </button>
+          <input
+            type="text"
+            value={cashInput}
+            onChange={(e) => setCashInput(e.target.value)}
+            placeholder="Enter Cash Amount"
+            className="py-2 px-4 border rounded mr-2 mt-3 print-button screen-only"
+            style={{ minWidth: '150px' }}
+          />
+          <button onClick={handleCashPayment} className="bg-green-500 mt-3 hover:bg-green-700 text-white font-bold py-2 px-4 rounded print-button screen-only">
+            Cash
+          </button>
+          <button className="bg-yellow-500 ml-5 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded print-button screen-only">
+            GPay
+          </button>
+        </div>
+        {cashGiven > 0 && change !== null && (
+          <div className="text-right mt-4">
+            <p>Cash Given: ${cashGiven}</p>
+            <p>Change to Return: ${change}</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Continued from the previous code snippet
+
+const TableOrderContainer = ({ tableOrder, calculateTotalPrice, calculateTotalWithGST, handlePrint }) => {
+  const [cashGiven, setCashGiven] = useState(0);
+  const [change, setChange] = useState(null);
+  const [cashInput, setCashInput] = useState('');
+
+  const handleCashPayment = () => {
+    const cashReceived = parseFloat(cashInput);
+    if (!isNaN(cashReceived)) {
+      const totalPriceWithGST = parseFloat(calculateTotalWithGST(tableOrder.orders));
+      const changeToReturn = (cashReceived - totalPriceWithGST).toFixed(2);
+      setCashGiven(cashReceived);
+      setChange(changeToReturn);
+    } else {
+      alert('Please enter a valid cash amount.');
+    }
+  };
+
+  return (
+    <div id={`table-order-${tableOrder._id}`} className="mb-6 mx-auto max-w-xs border rounded-lg overflow-hidden shadow-lg flex flex-col print-container" style={{ marginBottom: '1rem' }}>
+      <div className="bg-green-200 p-4 flex-1">
+        <div className="text-center mb-4">
+          <h1 className="text-3xl font-bold mb-2">Restaurant Name</h1>
+          <p>123 Main Street, City, Country</p>
+          <p>Contact: +123 456 7890</p>
+        </div>
+        <div className="text-center justify-evenly mb-4 flex">
+          <h1 className="mb-2 font-semibold">Place: {tableOrder.place}</h1>
+          <p className="mb-2 font-semibold">Table No: {tableOrder.tableNumber}</p>
+        </div>
+        <div className="border-b mb-4 pb-4">
+          <div className="grid grid-cols-3 gap-4 font-bold mb-2">
+            <span>Name</span>
+            <span>Quantity</span>
+            <span>Total Price</span>
+          </div>
+          {tableOrder.orders && tableOrder.orders.map(item => (
+            <div key={item.name} className="grid grid-cols-3 gap-4 mb-2">
+              <span>{item.name}</span>
+              <span>{item.quantity}</span>
+              <span>${item.totalPrice}</span>
+            </div>
+          ))}
+        </div>
+        <div className="text-right font-bold">
+          <p>Total Price: ${calculateTotalPrice(tableOrder.orders)}</p>
+          <p>Total Price with GST: ${calculateTotalWithGST(tableOrder.orders)}</p>
+        </div>
+        <div className=" mt-4">
+          <button onClick={() => handlePrint(`table-order-${tableOrder._id}`)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mr-4 rounded print-button screen-only">
+            Bill
+          </button>
+          <input
+            type="text"
+            value={cashInput}
+            onChange={(e) => setCashInput(e.target.value)}
+            placeholder="Enter Cash Amount"
+            className="py-2 px-4 border rounded mr-2 mt-3 print-button screen-only"
+            style={{ minWidth: '150px' }}
+          />
+          <button onClick={handleCashPayment} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded print-button screen-only mt-3">
+            Cash
+          </button>
+          <button className="bg-yellow-500 ml-5 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded print-button screen-only">
+            GPay
+          </button>
+        </div>
+        {cashGiven > 0 && change !== null && (
+          <div className="text-right mt-4">
+            <p>Cash Given: ${cashGiven}</p>
+            <p>Change to Return: ${change}</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 export default Bill;
+
