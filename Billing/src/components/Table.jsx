@@ -4,7 +4,7 @@ import axios from 'axios';
 function Table() {
   const [popupText, setPopupText] = useState([]);
   const [orders, setOrders] = useState([]);
-  
+
   useEffect(() => {
     // Fetch orders from the API
     axios.get('http://localhost:5000/api/tableorders')
@@ -19,25 +19,38 @@ function Table() {
   const handleClick = (tableNumber, place) => {
     // Convert place to lowercase to match the data
     place = place.toLowerCase();
-  
+
     // Filter orders based on table number, place, and status
-    const tableOrders = orders.filter(order => 
-      order.tableNumber === tableNumber && 
+    const tableOrders = orders.filter(order =>
+      order.tableNumber === tableNumber &&
       order.place.toLowerCase() === place &&
       order.status === 'Pending'
     );
-  
+
     if (tableOrders.length > 0) {
       // Generate popup text with table number, place, and orders
       const popupContent = tableOrders.map((order, index) => (
-        <div key={index}>
-          <p>{` Table ${tableNumber} - ${place.charAt(0).toUpperCase() + place.slice(1)}`}</p>
+        <div key={index} className='text-center'>
+          <div className="text-center mb-4">
+            <h1 className="text-3xl font-bold mb-2">Restaurant Name</h1>
+            <p>123 Main Street, City, Country</p>
+            <p>Contact: +123 456 7890</p>
+          </div>
+          <p>{`Table ${tableNumber} - ${place.charAt(0).toUpperCase() + place.slice(1)}`}</p>
+          <div className="grid grid-cols-3 gap-4 font-bold mb-2">
+            <p className="col-span-2 text-center">Name</p>
+            <p className="text-center">Quantity</p>
+          </div>
           <ul>
             {order.orders.map((item, idx) => (
-              <li key={idx}>{`${item.quantity} - ${item.name}`}</li>
+              <li key={idx} className="grid grid-cols-3 gap-4">
+                <p className="col-span-2 text-center">{item.name}</p>
+                <p className="text-center">{item.quantity}</p>
+              </li>
             ))}
           </ul>
         </div>
+
       ));
       setPopupText(popupContent);
     } else {
@@ -45,7 +58,7 @@ function Table() {
       setPopupText([`No pending orders found for ${place} - Table ${tableNumber}`]);
     }
   };
-  
+
   return (
     <div className='flex'>
       {/* Navbar */}
@@ -56,7 +69,7 @@ function Table() {
       {/* Main content */}
       <div className='w-3/4 p-4'>
         {/* AC Room */}
-        <div className='mb-8'>
+        <div className='mb-8 '>
           <h2 className='text-xl font-bold mb-4'>AC</h2>
           <div className='grid grid-cols-3 gap-4'>
             {Array.from({ length: 7 }).map((_, index) => (
@@ -118,7 +131,7 @@ function Table() {
                   </div>
                 </div>
               </div>
-              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex  sm:flex-row-reverse">
                 <button onClick={() => setPopupText([])} type="button" className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm">
                   Close
                 </button>
