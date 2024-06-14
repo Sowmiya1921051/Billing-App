@@ -110,11 +110,7 @@ const Bill = () => {
     newWindow.print();
   };
 
-  // Function to handle canceling printing
-  const handleCancelPrint = () => {
-    // Close the print window
-    window.close();
-  };
+  
 
   return (
     <div className="container mx-auto flex">
