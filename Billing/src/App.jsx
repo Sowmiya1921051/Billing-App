@@ -13,11 +13,12 @@ import Sales from './components/Sales'
 import Review from './components/Review';
 import Account from './components/Account';
 import Payment from './components/Payment';
-import BarChart from './components/Barchart';
+// import BarChart from './components/Barchart';
 import KOT from './components/KOT';
 import Table from './components/Table';
 import TableOrders from './components/tableOrders';
 import Bill from './components/Bill'
+import Takeaway from './components/Takeaway'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('token'));
@@ -61,11 +62,12 @@ function App() {
           <Route path="/reviews" element={isLoggedIn ? <Review /> : <Navigate to="/" replace />} />
           <Route path="/account" element={isLoggedIn ? <Account /> : <Navigate to="/" replace />} />
           <Route path="/payment" element={isLoggedIn ? <Payment /> : <Navigate to="/" replace />} />
-          <Route path="/barchart" element={isLoggedIn ? <BarChart /> : <Navigate to="/" replace />} />
+          {/* <Route path="/barchart" element={isLoggedIn ? <BarChart /> : <Navigate to="/" replace />} /> */}
           <Route path="/KOT" element={isLoggedIn ? <KOT /> : <Navigate to="/" replace />} />
           <Route path="/table" element={isLoggedIn ? <Table {...selectedValues} /> : <Navigate to="/" replace />} />
           <Route path="/tableOrders" element={isLoggedIn ? <TableOrders setSelectedValues={setSelectedValues} /> : <Navigate to="/" replace />} />
           <Route path="/bill" element={isLoggedIn ? <Bill /> : <Navigate to="/" replace />} />
+          <Route path="/takeaway" element={isLoggedIn ? <Takeaway /> : <Navigate to="/" replace />} />
 
         </Routes>
       </BrowserRouter>

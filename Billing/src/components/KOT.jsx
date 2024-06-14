@@ -71,7 +71,7 @@ const KOT = () => {
       <div className="flex justify-center w-full">
         {/* Kitchen Orders */}
         <div className="max-w-md w-full bg-blue-200 shadow-md p-8 rounded-lg mr-4">
-        <h2 className="text-3xl font-bold mb-8">Take Orders</h2>
+        <h2 className="text-3xl font-bold mb-8">Take Away</h2>
           <ul>
             {kitchenOrders.map(order => (
               <li key={order._id} className="mb-4 p-4 bg-blue-100 rounded-lg shadow-md">
