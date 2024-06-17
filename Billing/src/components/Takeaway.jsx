@@ -15,6 +15,9 @@ function Takeaway() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDishes, setSelectedDishes] = useState({});
   const [orderDetails, setOrderDetails] = useState(null);
+  const [paymentAmount, setPaymentAmount] = useState('');
+  const [remainingBalance, setRemainingBalance] = useState(null);
+  const GST_RATE = 0.18; // GST rate of 18%
 
   const fetchDishes = async () => {
     setLoading(true);
@@ -114,16 +117,34 @@ function Takeaway() {
       price: prices[id]
     }));
     const totalPrice = selectedOrderDetails.reduce((sum, { count, price }) => sum + (count * price), 0);
-    
-    const order = { items: selectedOrderDetails, totalPrice };
-    
+    const gstAmount = totalPrice * GST_RATE;
+    const totalPriceWithGST = totalPrice + gstAmount;
+
+    const order = { items: selectedOrderDetails, totalPrice: totalPriceWithGST };
+
     try {
       const response = await axios.post('http://localhost:5000/api/orders', order);
       console.log('Order saved:', response.data);
-      setOrderDetails({ items: selectedOrderDetails, totalPrice });
+      setOrderDetails({ items: selectedOrderDetails, totalPrice, totalPriceWithGST });
     } catch (error) {
       console.error('Error saving order:', error);
     }
+  };
+
+  const handleCashPayment = () => {
+    const enteredAmount = parseFloat(paymentAmount);
+    if (!isNaN(enteredAmount)) {
+      const totalPriceMinusGST = orderDetails.totalPrice / (1 + GST_RATE);
+      const remainingBalance = enteredAmount - totalPriceMinusGST;
+      // Calculate remaining balance minus GST
+      const remainingBalanceWithoutGST = enteredAmount - orderDetails.totalPrice;
+      setRemainingBalance(remainingBalanceWithoutGST);
+    }
+  };
+
+  const handleGPayPayment = () => {
+    alert('GPay payment method selected.');
+    // Implement GPay payment logic here
   };
 
   if (loading) {
@@ -184,21 +205,17 @@ function Takeaway() {
           <div className="flex justify-between items-center">
             <button
               onClick={handleOrder}
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg mr-2"
             >
               Order
             </button>
-            <div className="flex space-x-4">
-              <label className="flex items-center">
-                <input type="radio" name="paymentMethod" value="cash" className="mr-2" />
-                Cash
-              </label>
-              <label className="flex items-center">
-                <input type="radio" name="paymentMethod" value="upi" className="mr-2" />
-                UPI
-              </label>
-            </div>
+           
           </div>
+          {remainingBalance !== null && (
+              <div className="mt-2">
+                <p>Remaining Balance: ${remainingBalance.toFixed(2)}</p>
+              </div>
+            )}
         </div>
 
         {/* Order Details Section */}
@@ -215,6 +232,30 @@ function Takeaway() {
             </ul>
             <div className="mt-4 text-lg font-bold">
               Total: ${orderDetails.totalPrice.toFixed(2)}
+            </div>
+            <div className="text-sm text-gray-600 mt-2">
+              Total Price with GST: ${orderDetails.totalPriceWithGST.toFixed(2)}
+            </div>
+            <div className="flex items-center mt-2">
+              <input
+                type="text"
+                placeholder="Enter Amount"
+                value={paymentAmount}
+                onChange={(e) => setPaymentAmount(e.target.value)}
+                className="px-4 py-2 border rounded-lg mr-2"
+              />
+              <button
+                onClick={handleCashPayment}
+                className="bg-green-500 text-white px-4 py-2 rounded-lg mr-2"
+              >
+                Cash
+              </button>
+              <button
+                onClick={handleGPayPayment}
+                className="bg-yellow-500 text-white px-4 py-2 rounded-lg"
+              >
+                GPay
+              </button>
             </div>
           </div>
         )}
