@@ -16,12 +16,12 @@ const Dashboard = () => {
         >
           <FaList className="mr-0 md:mr-2" /> <span className="hidden md:inline">MenuList</span>
         </Link>
-        <Link
+        {/* <Link
           className="flex items-center justify-center md:justify-start py-2.5 px-4 rounded transition duration-200 hover:bg-indigo-700 hover:text-white text-gray-400 w-full"
           to="/adminComponent"
         >
           <FaUserCog className="mr-0 md:mr-2" /> <span className="hidden md:inline">Admin Component</span>
-        </Link>
+        </Link> */}
         <Link
           className="flex items-center justify-center md:justify-start py-2.5 px-4 rounded transition duration-200 hover:bg-indigo-700 hover:text-white text-gray-400 w-full"
           to="/orderedData"
