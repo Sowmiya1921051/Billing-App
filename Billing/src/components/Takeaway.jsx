@@ -13,7 +13,6 @@ function Takeaway() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedDishes, setSelectedDishes] = useState({});
   const [orderDetails, setOrderDetails] = useState(null);
   const [paymentAmount, setPaymentAmount] = useState('');
   const [remainingBalance, setRemainingBalance] = useState(null);
@@ -102,18 +101,11 @@ function Takeaway() {
     });
   };
 
-  const handleCheckboxChange = (id) => {
-    setSelectedDishes(prevSelectedDishes => ({
-      ...prevSelectedDishes,
-      [id]: !prevSelectedDishes[id]
-    }));
-  };
-
   const handleOrder = async () => {
-    const selectedOrderDetails = Object.keys(selectedDishes).filter(id => selectedDishes[id]).map(id => ({
+    const selectedOrderDetails = Object.keys(orders).map(id => ({
       id,
       name: dishes.find(dish => dish._id === id).name,
-      count: orders[id]?.count || 0,
+      count: orders[id].count,
       price: prices[id]
     }));
     const totalPrice = selectedOrderDetails.reduce((sum, { count, price }) => sum + (count * price), 0);
@@ -133,12 +125,9 @@ function Takeaway() {
 
   const handleCashPayment = () => {
     const enteredAmount = parseFloat(paymentAmount);
-    if (!isNaN(enteredAmount)) {
-      const totalPriceMinusGST = orderDetails.totalPrice / (1 + GST_RATE);
-      const remainingBalance = enteredAmount - totalPriceMinusGST;
-      // Calculate remaining balance minus GST
-      const remainingBalanceWithoutGST = enteredAmount - orderDetails.totalPrice;
-      setRemainingBalance(remainingBalanceWithoutGST);
+    if (!isNaN(enteredAmount) && orderDetails) {
+      const remainingBalance = enteredAmount - orderDetails.totalPriceWithGST;
+      setRemainingBalance(remainingBalance);
     }
   };
 
@@ -147,6 +136,68 @@ function Takeaway() {
     // Implement GPay payment logic here
   };
 
+  const handlePrintBill = () => {
+    const restaurantInfo = {
+      name: "Restaurant Name",
+      address: "123 Main Street, City, Country",
+      contact: "+123 456 7890"
+    };
+  
+    const printWindow = window.open('', '_blank');
+    const printDocument = printWindow.document.open();
+    const billHtml = `
+      <html>
+        <head>
+          <title>Order Bill</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            h3 { font-size: 24px; }
+            p { margin: 5px 0; }
+            table { width: 20%; border-collapse: collapse; margin-top: 20px; }
+            th, td {  padding: 8px; text-align: center; }
+            th { background-color: #f4f4f4; }
+          </style>
+        </head>
+        <body>
+          <h3>${restaurantInfo.name}</h3>
+          <p>${restaurantInfo.address}</p>
+          <p>Contact: ${restaurantInfo.contact}</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Quantity</th>
+                <th>Total Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${orderDetails.items.map(({ name, count, price }) => `
+                <tr>
+                  <td>${name}</td>
+                  <td>${count}</td>
+                  <td>$${(count * price).toFixed(2)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="2"><strong>Total Price:</strong></td>
+                <td><strong>$${orderDetails.totalPrice.toFixed(2)}</strong></td>
+              </tr>
+              <tr>
+                <td colspan="2"><strong>Total Price with GST:</strong></td>
+                <td><strong>$${orderDetails.totalPriceWithGST.toFixed(2)}</strong></td>
+              </tr>
+            </tfoot>
+          </table>
+        </body>
+      </html>
+    `;
+    printDocument.write(billHtml);
+    printDocument.close();
+    printWindow.print();
+  };
+  
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
@@ -179,12 +230,6 @@ function Takeaway() {
             <ul className="w-full space-y-4">
               {filteredDishes.map(dish => (
                 <li key={dish._id} className="bg-white rounded-lg shadow-md p-4 flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={!!selectedDishes[dish._id]}
-                    onChange={() => handleCheckboxChange(dish._id)}
-                    className="mr-4"
-                  />
                   <div className="flex-grow">
                     <h3 className="text-xl font-semibold">{dish.name}</h3>
                     <p className="text-gray-600">Price: ${prices[dish._id].toFixed(2)}</p>
@@ -209,13 +254,12 @@ function Takeaway() {
             >
               Order
             </button>
-           
           </div>
           {remainingBalance !== null && (
-              <div className="mt-2">
-                <p>Remaining Balance: ${remainingBalance.toFixed(2)}</p>
-              </div>
-            )}
+            <div className="mt-2">
+              <p>Remaining Balance: ${remainingBalance.toFixed(2)}</p>
+            </div>
+          )}
         </div>
 
         {/* Order Details Section */}
@@ -255,6 +299,12 @@ function Takeaway() {
                 className="bg-yellow-500 text-white px-4 py-2 rounded-lg"
               >
                 GPay
+              </button>
+              <button
+                onClick={handlePrintBill}
+                className="bg-gray-500 text-white px-4 py-2 rounded-lg ml-2"
+              >
+                Bill
               </button>
             </div>
           </div>
