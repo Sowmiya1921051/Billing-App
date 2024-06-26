@@ -10,7 +10,7 @@ function DishList() {
   const [prices, setPrices] = useState({});
   const [originalPrices, setOriginalPrices] = useState({});
   const [counters, setCounters] = useState({});
-  const [orders, setOrders] = useState({});
+  const [orders, setOrders] = useState({}); 
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
   const [categoryTitle, setCategoryTitle] = useState('Dishes');
@@ -101,10 +101,10 @@ function DishList() {
     });
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    window.location.href = '/login';
-  };
+  // const handleLogout = () => {
+  //   localStorage.removeItem('token');
+  //   window.location.href = '/login';
+  // };
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
