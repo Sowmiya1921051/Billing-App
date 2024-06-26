@@ -212,7 +212,6 @@ app.put('/api/tableOrders/addOrder', async (req, res) => {
 });
 
 
-
 // GET endpoint to fetch all table orders
 app.get('/api/tableOrders', async (req, res) => {
   try {
