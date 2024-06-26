@@ -112,7 +112,12 @@ const OrderSchema = new mongoose.Schema({
 const Order = mongoose.model('Order', OrderSchema);
 
 const TableOrderSchema = new mongoose.Schema({
-  orders: Array,
+  orders: [{
+    name: String,
+    quantity: Number,
+    totalPrice: String,
+    gstPrice: String
+  }],
   tableNumber: Number,
   place: String,
   status: { type: String, default: 'Pending' }
@@ -122,78 +127,43 @@ const TableOrder = mongoose.model('TableOrder', TableOrderSchema);
 
 app.use(express.json());
 
+// POST endpoint to add a new order
 app.post('/api/tableOrders', async (req, res) => {
   try {
-    const { orders, tableNumber, place, status } = req.body; // Add status here
+    const { orders, tableNumber, place } = req.body;
+
+    // Check if there's already a pending order for the table and place
+    const existingOrder = await TableOrder.findOne({ tableNumber, place, status: 'Pending' });
+
+    if (existingOrder) {
+      // If an existing pending order is found, do not allow creation of a new one
+      return res.status(400).json({ message: 'An active order already exists for this table and place' });
+    }
+
+    // Create a new table order
     const newTableOrder = new TableOrder({
       orders,
       tableNumber,
-      place,
-      status // Include status field here
+      place
     });
 
     await newTableOrder.save();
 
-    res.status(200).json({ message: 'Order saved successfully' });
+    res.status(200).json({ message: 'Order saved successfully', order: newTableOrder });
   } catch (error) {
     console.error('Error saving order:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
 
-
-
-app.get('/api/tableOrders', async (req, res) => {
-  try {
-    // Fetch all table orders from the database
-    const tableOrders = await TableOrder.find();
-
-    // If there are no table orders, return a 404 status with an appropriate message
-    if (!tableOrders || tableOrders.length === 0) {
-      return res.status(404).json({ message: 'No table orders found' });
-    }
-
-    // If table orders are found, return them as a JSON response with status
-    const tableOrdersWithStatus = tableOrders.map(order => ({
-      ...order.toObject(),
-      status: order.status || null // Include status field in each order
-    }));
-
-    res.status(200).json(tableOrdersWithStatus);
-  } catch (error) {
-    // If an error occurs during the process, log the error and return a 500 status with an error message
-    console.error('Error fetching table orders:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
-
-app.put('/api/tableOrders/:id/status', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
-
-    const tableOrder = await TableOrder.findByIdAndUpdate(id, { status }, { new: true });
-
-    if (!tableOrder) {
-      return res.status(404).json({ message: 'Table order not found' });
-    }
-
-    res.status(200).json(tableOrder);
-  } catch (error) {
-    console.error('Error updating table order status:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
-
-
 app.put('/api/tableOrders/addOrder', async (req, res) => {
   try {
     const { orders, tableNumber, place } = req.body;
 
-    // Find the existing table order by table number
+    // Find the existing table order by table number and place
     const existingOrder = await TableOrder.findOne({ tableNumber, place });
 
-    if (existingOrder) {
+    if (existingOrder && existingOrder.status === 'Pending') {
       // Update existing order by merging new orders with existing ones
       orders.forEach(newOrder => {
         const existingOrderIndex = existingOrder.orders.findIndex(order => order.name === newOrder.name);
@@ -217,9 +187,10 @@ app.put('/api/tableOrders/addOrder', async (req, res) => {
       // Save the updated order
       await existingOrder.save();
 
+      // Respond with success message and updated order
       res.status(200).json({ message: 'Order updated successfully', order: existingOrder });
     } else {
-      // If no existing order is found, create a new one
+      // If no existing order is found or the existing order's status is not 'Pending', create a new one
       const newTableOrder = new TableOrder({
         orders,
         tableNumber,
@@ -227,16 +198,132 @@ app.put('/api/tableOrders/addOrder', async (req, res) => {
         status: 'Pending'
       });
 
+      // Save the new order
       await newTableOrder.save();
 
+      // Respond with success message and new order
       res.status(200).json({ message: 'Order saved successfully', order: newTableOrder });
     }
   } catch (error) {
+    // Handle errors
     console.error('Error updating order:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
 
+
+
+// GET endpoint to fetch all table orders
+app.get('/api/tableOrders', async (req, res) => {
+  try {
+    const tableOrders = await TableOrder.find();
+
+    if (!tableOrders || tableOrders.length === 0) {
+      return res.status(404).json({ message: 'No table orders found' });
+    }
+
+    const tableOrdersWithStatus = tableOrders.map(order => ({
+      ...order.toObject(),
+      status: order.status || null
+    }));
+
+    res.status(200).json(tableOrdersWithStatus);
+  } catch (error) {
+    console.error('Error fetching table orders:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+app.put('/api/tableOrders/addOrder', async (req, res) => {
+  try {
+    const { orders, tableNumber, place } = req.body;
+
+    // Find the existing table order by table number and place
+    let existingOrder = await TableOrder.findOne({ tableNumber, place });
+
+    if (existingOrder) {
+      // If an existing order is found, update it
+      if (existingOrder.status === 'Pending') {
+        // Update existing order by merging new orders with existing ones
+        orders.forEach(newOrder => {
+          const existingOrderIndex = existingOrder.orders.findIndex(order => order.name === newOrder.name);
+          if (existingOrderIndex >= 0) {
+            // If the order already exists, update the quantity and prices
+            existingOrder.orders[existingOrderIndex].quantity += newOrder.quantity;
+            existingOrder.orders[existingOrderIndex].totalPrice = (
+              parseFloat(existingOrder.orders[existingOrderIndex].totalPrice) +
+              parseFloat(newOrder.totalPrice)
+            ).toFixed(2);
+            existingOrder.orders[existingOrderIndex].gstPrice = (
+              parseFloat(existingOrder.orders[existingOrderIndex].gstPrice) +
+              parseFloat(newOrder.gstPrice)
+            ).toFixed(2);
+          } else {
+            // If the order does not exist, add it to the orders array
+            existingOrder.orders.push(newOrder);
+          }
+        });
+
+        // Save the updated order
+        existingOrder = await existingOrder.save();
+
+        // Respond with success message and updated order
+        res.status(200).json({ message: 'Order updated successfully', order: existingOrder });
+      } else if (existingOrder.status === 'Completed') {
+        // For completed orders, create a new order with the same tableNumber and place
+        const newTableOrder = new TableOrder({
+          orders,
+          tableNumber,
+          place,
+          status: 'Completed' // Set status to 'Completed' for new orders
+        });
+
+        // Save the new order
+        await newTableOrder.save();
+
+        // Respond with success message and new order
+        res.status(200).json({ message: 'New order added successfully', order: newTableOrder });
+      }
+    } else {
+      // If no existing order is found, create a new one with 'Pending' status
+      const newTableOrder = new TableOrder({
+        orders,
+        tableNumber,
+        place,
+        status: 'Pending' // Set status to 'Pending' for new orders
+      });
+
+      // Save the new order
+      await newTableOrder.save();
+
+      // Respond with success message and new order
+      res.status(200).json({ message: 'New order added successfully', order: newTableOrder });
+    }
+  } catch (error) {
+    // Handle errors
+    console.error('Error updating order:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
+app.put('/api/tableOrders/:id/status', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const tableOrder = await TableOrder.findByIdAndUpdate(id, { status }, { new: true });
+
+    if (!tableOrder) {
+      return res.status(404).json({ message: 'Table order not found' });
+    }
+
+    res.status(200).json(tableOrder);
+  } catch (error) {
+    console.error('Error updating table order status:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
 // Function to get current date and time in the desired format
 function getCurrentDateTime() {

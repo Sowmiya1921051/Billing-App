@@ -23,7 +23,7 @@ function DishList() {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get('http://localhost:5000/api/dishes', { timeout: 10000 }); // 10 seconds timeout
+      const response = await axios.get('http://localhost:5000/api/dishes', { timeout: 1000 }); // 10 seconds timeout
       const fetchedDishes = response.data;
       setDishes(fetchedDishes);
 
