@@ -324,6 +324,34 @@ app.put('/api/tableOrders/:id/status', async (req, res) => {
   }
 });
 
+
+
+
+const stockSchema = new mongoose.Schema({
+  name: String,
+  value: Number,
+});
+
+const Stock = mongoose.model('Stock', stockSchema);
+
+// API endpoints
+app.post('/api/stocks', async (req, res) => {
+  const { name, value } = req.body;
+  const newStock = new Stock({ name, value });
+  await newStock.save();
+  res.status(201).send(newStock);
+});
+
+app.get('/api/stocks', async (req, res) => {
+  const stocks = await Stock.find();
+  res.status(200).send(stocks);
+});
+
+
+
+
+
+
 // Function to get current date and time in the desired format
 function getCurrentDateTime() {
   let date_time = new Date();
