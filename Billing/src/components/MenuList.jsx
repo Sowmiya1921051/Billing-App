@@ -9,6 +9,8 @@ const AddDishForm = () => {
   const [category, setCategory] = useState('');
   const [subcategory, setsubCategory] = useState('');
   const [image, setImage] = useState(null);
+  const [editingPriceId, setEditingPriceId] = useState(null);
+  const [newPrice, setNewPrice] = useState('');
 
   useEffect(() => {
     fetchDishes();
@@ -78,11 +80,32 @@ const AddDishForm = () => {
     window.location.href = '/login'; // Navigate to login page
   };
 
+  const handleEditPrice = (id, currentPrice) => {
+    setEditingPriceId(id);
+    setNewPrice(currentPrice);
+  };
+
+  const handleSavePrice = async (id) => {
+    try {
+      await axios.put(`http://localhost:5000/api/dishes/${id}/price`, { price: newPrice });
+      setEditingPriceId(null);
+      setNewPrice('');
+      fetchDishes(); // Refresh the dish list
+    } catch (error) {
+      console.error('Error updating price:', error);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingPriceId(null);
+    setNewPrice('');
+  };
+
   return (
     <div className="min-h-screen flex">
       {/* Left-side navigation bar */}
-      <nav className="w-64  text-white p-6">
-
+      <nav className="w-64 text-white p-6">
+        {/* Add your navigation items here */}
       </nav>
 
       {/* Right-side content */}
@@ -145,7 +168,6 @@ const AddDishForm = () => {
             >
               View Orders
             </Link>
-
           </div>
           <button
             onClick={handleLogout}
@@ -167,7 +189,40 @@ const AddDishForm = () => {
                 {dishes.map((dish, index) => (
                   <tr key={dish._id} className={`border-t ${index % 2 === 0 ? 'bg-white' : 'bg-gray-100'}`}>
                     <td className="py-2 px-4">{dish.name}</td>
-                    <td className="py-2 px-4">${dish.priceWithGST.toFixed(2)}</td>
+                    <td className="py-2 px-4">
+                      {editingPriceId === dish._id ? (
+                        <>
+                          <input
+                            type="number"
+                            value={newPrice}
+                            onChange={(e) => setNewPrice(e.target.value)}
+                            className="border-b focus:outline-none px-2 py-1 w-20"
+                          />
+                          <button
+                            onClick={() => handleSavePrice(dish._id)}
+                            className="bg-blue-500 text-white px-2 py-1 rounded ml-2"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={handleCancelEdit}
+                            className="bg-gray-500 text-white px-2 py-1 rounded ml-2"
+                          >
+                            Cancel
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          ${dish.originalPrice.toFixed(2)}
+                          <button
+                            onClick={() => handleEditPrice(dish._id, dish.originalPrice)}
+                            className="bg-yellow-500 text-white px-2 py-1 rounded ml-2"
+                          >
+                            Edit
+                          </button>
+                        </>
+                      )}
+                    </td>
                     <td className="py-2 px-4">
                       {dish.hidden ? (
                         <button

@@ -326,28 +326,62 @@ app.put('/api/tableOrders/:id/status', async (req, res) => {
 
 
 
-
+// Stock schema
 const stockSchema = new mongoose.Schema({
   name: String,
-  value: Number,
+  price: Number,
+  weight: Number,
 });
 
 const Stock = mongoose.model('Stock', stockSchema);
 
-// API endpoints
-app.post('/api/stocks', async (req, res) => {
-  const { name, value } = req.body;
-  const newStock = new Stock({ name, value });
-  await newStock.save();
-  res.status(201).send(newStock);
+// Routes
+app.post('/api/stock', async (req, res) => {
+  const { name, price, weight } = req.body;
+
+  if (!name || price == null || weight == null) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
+  const newStock = new Stock({ name, price, weight });
+
+  try {
+    await newStock.save();
+    res.status(201).json(newStock);
+  } catch (error) {
+    res.status(500).json({ message: 'Error saving stock data', error });
+  }
 });
 
-app.get('/api/stocks', async (req, res) => {
-  const stocks = await Stock.find();
-  res.status(200).send(stocks);
+// GET route to fetch all stocks
+app.get('/api/stock', async (req, res) => {
+  try {
+    const stocks = await Stock.find();
+    res.status(200).json(stocks);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching stock data', error });
+  }
 });
 
+// Add this new route to update stock price
+app.put('/api/stock/:id', async (req, res) => {
+  const { id } = req.params;
+  const { price } = req.body;
 
+  if (price == null) {
+    return res.status(400).json({ message: 'Price is required' });
+  }
+
+  try {
+    const updatedStock = await Stock.findByIdAndUpdate(id, { price }, { new: true });
+    if (!updatedStock) {
+      return res.status(404).json({ message: 'Stock not found' });
+    }
+    res.status(200).json(updatedStock);
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating stock price', error });
+  }
+});
 
 
 
@@ -423,6 +457,23 @@ app.put('/api/dishes/:id/hidden', async (req, res) => {
   } catch (error) {
     console.error('Error updating dish hidden status:', error);
     res.status(500).json({ success: false, message: 'Error updating dish hidden status' });
+  }
+});
+
+app.put('/api/dishes/:id/price', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { price } = req.body;
+
+    const dish = await Dish.findByIdAndUpdate(id, { originalPrice: price }, { new: true });
+
+    if (!dish) {
+      return res.status(404).send({ message: 'Dish not found' });
+    }
+
+    res.send(dish);
+  } catch (error) {
+    res.status(500).send({ message: 'Error updating dish price', error });
   }
 });
 
