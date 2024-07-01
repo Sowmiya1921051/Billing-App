@@ -478,6 +478,25 @@ app.put('/api/dishes/:id/price', async (req, res) => {
 });
 
 
+app.put('/stock/:id/weight', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { weight } = req.body;
+
+    const stock = await Stock.findById(id);
+    if (!stock) {
+      return res.status(404).json({ message: 'Stock item not found' });
+    }
+
+    stock.weight = weight;
+    await stock.save();
+
+    res.json(stock);
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating weight', error });
+  }
+});
+
 // Update order status route
 app.put('/api/orderedList/:id', async (req, res) => {
   try {
