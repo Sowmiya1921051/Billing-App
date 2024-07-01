@@ -363,25 +363,68 @@ app.get('/api/stock', async (req, res) => {
   }
 });
 
-// Add this new route to update stock price
-app.put('/api/stock/:id', async (req, res) => {
-  const { id } = req.params;
-  const { price } = req.body;
 
-  if (price == null) {
-    return res.status(400).json({ message: 'Price is required' });
+// Route to update the weight of a stock
+app.patch('/api/stock/:id', async (req, res) => {
+  const { id } = req.params;
+  const { takenValue } = req.body;
+
+  if (takenValue == null || takenValue <= 0) {
+    return res.status(400).json({ message: 'Taken value must be a positive number' });
   }
 
   try {
-    const updatedStock = await Stock.findByIdAndUpdate(id, { price }, { new: true });
-    if (!updatedStock) {
+    const stock = await Stock.findById(id);
+    if (!stock) {
       return res.status(404).json({ message: 'Stock not found' });
     }
-    res.status(200).json(updatedStock);
+
+    stock.weight -= takenValue;
+
+    if (stock.weight < 0) {
+      return res.status(400).json({ message: 'Insufficient stock' });
+    }
+
+    await stock.save();
+    res.status(200).json(stock);
   } catch (error) {
-    res.status(500).json({ message: 'Error updating stock price', error });
+    res.status(500).json({ message: 'Error updating stock data', error });
   }
 });
+
+
+
+
+// app.put('/api/stock/:id', async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const { weight } = req.body;
+//     const stock = await Stock.findByIdAndUpdate(id, { weight }, { new: true });
+//     res.json(stock);
+//   } catch (error) {
+//     res.status(500).send('Error updating stock');
+//   }
+// });
+
+// // Add this new route to update stock price
+// app.put('/api/stock/:id', async (req, res) => {
+//   const { id } = req.params;
+//   const { price } = req.body;
+
+//   if (price == null) {
+//     return res.status(400).json({ message: 'Price is required' });
+//   }
+
+//   try {
+//     const updatedStock = await Stock.findByIdAndUpdate(id, { price }, { new: true });
+//     if (!updatedStock) {
+//       return res.status(404).json({ message: 'Stock not found' });
+//     }
+//     res.status(200).json(updatedStock);
+//   } catch (error) {
+//     res.status(500).json({ message: 'Error updating stock price', error });
+//   }
+// });
 
 
 
@@ -477,25 +520,6 @@ app.put('/api/dishes/:id/price', async (req, res) => {
   }
 });
 
-
-app.put('/stock/:id/weight', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { weight } = req.body;
-
-    const stock = await Stock.findById(id);
-    if (!stock) {
-      return res.status(404).json({ message: 'Stock item not found' });
-    }
-
-    stock.weight = weight;
-    await stock.save();
-
-    res.json(stock);
-  } catch (error) {
-    res.status(500).json({ message: 'Error updating weight', error });
-  }
-});
 
 // Update order status route
 app.put('/api/orderedList/:id', async (req, res) => {
