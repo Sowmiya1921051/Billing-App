@@ -5,6 +5,7 @@ const StockManagementComponent = () => {
   const [newStock, setNewStock] = useState({ name: '', price: 0, weight: 0 });
   const [stocks, setStocks] = useState([]);
   const [stockDictionary, setStockDictionary] = useState({});
+  const [stockData, setStockData] = useState([]); // New state for stockdata
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [listSuccess, setListSuccess] = useState(null);
@@ -38,7 +39,18 @@ const StockManagementComponent = () => {
       }
     };
 
+    const fetchStockData = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/stockdata');
+        setStockData(response.data);
+        setListSuccess('Stock data fetched successfully!');
+      } catch (error) {
+        setError(error.message);
+      }
+    };
+
     fetchStocks();
+    fetchStockData(); // Fetch stockdata when the component mounts
   }, []);
 
   const handleInputChange = (e) => {
@@ -51,20 +63,20 @@ const StockManagementComponent = () => {
     try {
       const response = await axios.post('http://localhost:5000/api/stock', newStock);
       const { name, weight } = response.data;
-  
+
       // Check if the stock name already exists in the dictionary
       if (stockDictionary[name]) {
         const updatedWeight = stockDictionary[name].weight + weight;
         const updatedStocks = stocks.map(stock =>
           stock.name === name ? { ...stock, weight: updatedWeight } : stock
         );
-  
+
         // Update both dictionary and array with the updated stock
         const updatedDictionary = {
           ...stockDictionary,
           [name]: { ...stockDictionary[name], weight: updatedWeight }
         };
-  
+
         setStocks(updatedStocks);
         setStockDictionary(updatedDictionary);
       } else {
@@ -73,23 +85,28 @@ const StockManagementComponent = () => {
           ...stockDictionary,
           [name]: { ...response.data }
         };
-  
+
         setStocks([...stocks, response.data]);
         setStockDictionary(updatedDictionary);
       }
-  
+
       // Add to StockList collection
-      await axios.post('http://localhost:5000/api/stocklist', { name, weight });
-  
+      await axios.post('http://localhost:5000/api/stockdata', { name, weight });
+
       setSuccess('Stock added successfully!');
       setError(null);
       setNewStock({ name: '', price: 0, weight: 0 });
+
+      // Refetch stockdata to update the table
+      const stockDataResponse = await axios.get('http://localhost:5000/api/stockdata');
+      setStockData(stockDataResponse.data);
+
     } catch (error) {
       setError(error.message);
       setSuccess(null);
     }
   };
-  
+
   return (
     <div className="p-4">
       <div className="max-w-sm mx-auto bg-white shadow-md rounded-lg overflow-hidden mb-8">
@@ -134,7 +151,7 @@ const StockManagementComponent = () => {
       </div>
 
       <div className="max-w-2xl mx-auto">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Stock List</h2>
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Stock Data</h2>
         {error && <p className="text-red-500">{error}</p>}
         {listSuccess && <p className="text-green-500">{listSuccess}</p>}
         <div className="bg-white shadow-md rounded-lg overflow-hidden">
@@ -146,7 +163,7 @@ const StockManagementComponent = () => {
               </tr>
             </thead>
             <tbody>
-              {stocks.map((stock) => (
+              {stockData.map((stock) => (
                 <tr key={stock._id} className="border-t border-gray-200 text-center">
                   <td className="py-2 px-4">{stock.name}</td>
                   <td className="py-2 px-4">{stock.weight}</td>

@@ -333,6 +333,7 @@ const stockSchema = new mongoose.Schema({
   weight: Number,
 });
 
+
 const Stock = mongoose.model('Stock', stockSchema);
 
 // Routes
@@ -392,16 +393,20 @@ app.patch('/api/stock/:id', async (req, res) => {
   }
 });
 
-const stockListSchema = new mongoose.Schema({
+
+
+
+
+
+const stockDataSchema = new mongoose.Schema({
   name: String,
   weight: Number,
 });
 
-const StockList = mongoose.model('StockList', stockListSchema);
+const StockData = mongoose.model('StockData', stockDataSchema);
 
-// POST route to add stock to StockList
-// POST route to add or update stock in StockList
-app.post('/api/stocklist', async (req, res) => {
+
+app.post('/api/stockdata', async (req, res) => {
   const { name, weight } = req.body;
 
   if (!name || weight == null) {
@@ -409,7 +414,7 @@ app.post('/api/stocklist', async (req, res) => {
   }
 
   try {
-    let existingStock = await StockList.findOne({ name });
+    let existingStock = await StockData.findOne({ name });
 
     if (existingStock) {
       // If stock with the same name exists, update its weight
@@ -418,21 +423,19 @@ app.post('/api/stocklist', async (req, res) => {
       res.status(200).json(existingStock);
     } else {
       // If stock with the same name does not exist, create a new one
-      const newStockList = new StockList({ name, weight });
-      await newStockList.save();
-      res.status(201).json(newStockList);
+      const newStockData = new StockData({ name, weight });
+      await newStockData.save();
+      res.status(201).json(newStockData);
     }
   } catch (error) {
     res.status(500).json({ message: 'Error adding/updating stock in StockList', error });
   }
 });
 
-
-
 // GET route to fetch all stocks from StockList
-app.get('/api/stocklist', async (req, res) => {
+app.get('/api/stockdata', async (req, res) => {
   try {
-    const stocks = await StockList.find();
+    const stocks = await StockData.find();
     res.status(200).json(stocks);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching stock list', error });
@@ -440,7 +443,7 @@ app.get('/api/stocklist', async (req, res) => {
 });
 
 // PATCH route to update the weight of a stock in StockList
-app.patch('/api/stocklist/:id', async (req, res) => {
+app.patch('/api/stockdata/:id', async (req, res) => {
   const { id } = req.params;
   const { takenValue } = req.body;
 
@@ -449,7 +452,7 @@ app.patch('/api/stocklist/:id', async (req, res) => {
   }
 
   try {
-    const stock = await StockList.findById(id);
+    const stock = await StockData.findById(id);
     if (!stock) {
       return res.status(404).json({ message: 'Stock not found' });
     }
@@ -465,26 +468,36 @@ app.patch('/api/stocklist/:id', async (req, res) => {
 
 
 
+const stockTakenSchema = new mongoose.Schema({
+  name: String,
+  weightTaken: Number,
+  // dateTaken: { type: Date, default: Date.now }
+  dateTimeDayTaken: String,
+});
+
+const StockTaken = mongoose.model('StockTaken', stockTakenSchema);
 
 
-// app.post('/api/reduce', async (req, res) => {
-//   const { _id, weight } = req.body;
+app.post('/api/stocktaken', async (req, res) => {
+  const { name, weightTaken } = req.body;
 
-//   try {
-//     const stock = await Stock.findById(_id);
-//     if (stock) {
-//       stock.weight = weight;
-//       await stock.save();
-//       res.status(200).json(stock);
-//     } else {
-//       res.status(404).json({ message: 'Stock not found' });
-//     }
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// });
+  if (!name || weightTaken == null || weightTaken <= 0) {
+    return res.status(400).json({ message: 'Name and positive weight taken are required' });
+  }
 
+  try {
+    const currentDate = new Date();
+    const dayOfWeek = currentDate.toLocaleDateString('en-US', { weekday: 'long' }); // Example: "Tuesday"
+    const dateTimeDayTaken = `${currentDate.toLocaleDateString()}, ${currentDate.toLocaleTimeString()} ${dayOfWeek}`;
 
+    const newStockTaken = new StockTaken({ name, weightTaken, dateTimeDayTaken });
+    await newStockTaken.save();
+
+    res.status(201).json(newStockTaken);
+  } catch (error) {
+    res.status(500).json({ message: 'Error adding stock taken entry', error });
+  }
+});
 
 
 // Function to get current date and time in the desired format
