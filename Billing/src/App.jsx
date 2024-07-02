@@ -13,7 +13,6 @@ import Sales from './components/Sales'
 import Review from './components/Review';
 import Account from './components/Account';
 import Payment from './components/Payment';
-import Stocklist from './components/Stocklist';
 import Stockdata from './components/Stockdata';
 import KOT from './components/KOT';
 import Table from './components/Table';
@@ -63,7 +62,6 @@ function App() {
           <Route path="/reviews" element={isLoggedIn ? <Review /> : <Navigate to="/" replace />} />
           <Route path="/account" element={isLoggedIn ? <Account /> : <Navigate to="/" replace />} />
           <Route path="/payment" element={isLoggedIn ? <Payment /> : <Navigate to="/" replace />} />
-          <Route path="/stocklist" element={isLoggedIn ? <Stocklist /> : <Navigate to="/" replace />} />
           <Route path="/stockdata" element={isLoggedIn ? <Stockdata /> : <Navigate to="/" replace />} />
           <Route path="/KOT" element={isLoggedIn ? <KOT /> : <Navigate to="/" replace />} />
           <Route path="/table" element={isLoggedIn ? <Table {...selectedValues} /> : <Navigate to="/" replace />} />
