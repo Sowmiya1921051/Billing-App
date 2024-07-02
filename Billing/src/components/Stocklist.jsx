@@ -1,86 +1,95 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const StockList = () => {
+const Stocklist = () => {
   const [stocks, setStocks] = useState([]);
-  const [takenValues, setTakenValues] = useState({});
+  const [error, setError] = useState(null);
+  const [listSuccess, setListSuccess] = useState(null);
+  const [reduceAmount, setReduceAmount] = useState({});
 
   useEffect(() => {
+    const fetchStocks = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/stocklist'); // Updated API endpoint
+        const stockData = response.data;
+        
+        setStocks(stockData);
+      } catch (error) {
+        setError(error.message);
+      }
+    };
+
     fetchStocks();
   }, []);
 
-  const fetchStocks = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/api/stock');
-      setStocks(response.data);
-    } catch (error) {
-      console.error('Error fetching stocks:', error);
-    }
+  const handleReduceWeightChange = (id, value) => {
+    setReduceAmount({ ...reduceAmount, [id]: value });
   };
 
-  const handleTakenValueChange = (id, value) => {
-    setTakenValues({
-      ...takenValues,
-      [id]: value,
-    });
-  };
-
-  const handleUpdateWeight = async (id) => {
-    const takenValue = parseFloat(takenValues[id]);
-    if (isNaN(takenValue) || takenValue <= 0) {
-      alert('Please enter a valid number greater than 0');
+  const handleReduceWeight = async (id) => {
+    const amount = parseFloat(reduceAmount[id]);
+    if (isNaN(amount) || amount <= 0) {
+      setError("Please enter a valid number");
       return;
     }
 
     try {
-      await axios.patch(`http://localhost:5000/api/stock/${id}`, { takenValue });
-      fetchStocks(); // Refresh the stock list after updating the weight
+      const response = await axios.patch(`http://localhost:5000/api/stocklist/${id}`, { takenValue: amount });
+      const updatedStock = response.data;
+
+      const updatedStocks = stocks.map(stock => (stock._id === id ? updatedStock : stock));
+
+      setStocks(updatedStocks);
+      setError(null);
+      setListSuccess("Weight updated successfully!");
+      setReduceAmount({ ...reduceAmount, [id]: '' });
     } catch (error) {
-      console.error('Error updating stock:', error);
+      setError(error.message);
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 py-8">
-      <div className="w-full max-w-3xl bg-white p-8 rounded-xl shadow-md">
-        <h2 className="text-2xl font-semibold text-center mb-6">Stock List</h2>
-        <table className="min-w-full bg-white text-center">
-          <thead>
-            <tr className="text-xl">
-              <th className="py-2">Name</th>
-              <th className="py-2">Weight (kg)</th>
-              <th className="py-2">Taken Value (kg)</th>
-              <th className="py-2">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {stocks.map((stock, index) => (
-              <tr key={stock._id} className={`border-t ${index % 2 === 0 ? 'bg-white' : 'bg-gray-100'}`}>
-                <td className="py-2 px-4">{stock.name}</td>
-                <td className="py-2 px-4">{stock.weight} kg</td>
-                <td className="py-2 px-4">
-                  <input
-                    type="number"
-                    value={takenValues[stock._id] || ''}
-                    onChange={(e) => handleTakenValueChange(stock._id, e.target.value)}
-                    className="border px-2 py-1 rounded"
-                  />
-                </td>
-                <td className="py-2 px-4">
-                  <button
-                    onClick={() => handleUpdateWeight(stock._id)}
-                    className="bg-blue-500 text-white px-4 py-2 rounded"
-                  >
-                    Update
-                  </button>
-                </td>
+    <div className="p-4">
+      <div className="max-w-2xl mx-auto">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Stock List</h2>
+        {error && <p className="text-red-500">{error}</p>}
+        {listSuccess && <p className="text-green-500">{listSuccess}</p>}
+        <div className="bg-white shadow-md rounded-lg overflow-hidden">
+          <table className="min-w-full bg-white">
+            <thead>
+              <tr>
+                <th className="py-2 px-4 bg-gray-200 text-gray-800 font-semibold">Name</th>
+                <th className="py-2 px-4 bg-gray-200 text-gray-800 font-semibold">Total Weight</th>
+                <th className="py-2 px-4 bg-gray-200 text-gray-800 font-semibold">Reduce Weight</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {stocks.map((stock) => (
+                <tr key={stock._id} className="border-t border-gray-200 text-center">
+                  <td className="py-2 px-4">{stock.name}</td>
+                  <td className="py-2 px-4">{stock.weight}</td>
+                  <td className="py-2 px-4">
+                    <input
+                      type="number"
+                      value={reduceAmount[stock._id] || ''}
+                      onChange={(e) => handleReduceWeightChange(stock._id, e.target.value)}
+                      className="w-full p-2 border border-gray-300 rounded"
+                    />
+                    <button
+                      onClick={() => handleReduceWeight(stock._id)}
+                      className="mt-2 w-full p-2 border-2 border-blue-500 text-blue-500 rounded hover:bg-blue-50"
+                    >
+                      Reduce
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
 };
 
-export default StockList;
+export default Stocklist;

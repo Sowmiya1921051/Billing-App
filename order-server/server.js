@@ -392,37 +392,95 @@ app.patch('/api/stock/:id', async (req, res) => {
   }
 });
 
+const stockListSchema = new mongoose.Schema({
+  name: String,
+  weight: Number,
+});
+
+const StockList = mongoose.model('StockList', stockListSchema);
+
+// POST route to add stock to StockList
+// POST route to add or update stock in StockList
+app.post('/api/stocklist', async (req, res) => {
+  const { name, weight } = req.body;
+
+  if (!name || weight == null) {
+    return res.status(400).json({ message: 'Name and weight are required' });
+  }
+
+  try {
+    let existingStock = await StockList.findOne({ name });
+
+    if (existingStock) {
+      // If stock with the same name exists, update its weight
+      existingStock.weight += weight;
+      await existingStock.save();
+      res.status(200).json(existingStock);
+    } else {
+      // If stock with the same name does not exist, create a new one
+      const newStockList = new StockList({ name, weight });
+      await newStockList.save();
+      res.status(201).json(newStockList);
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Error adding/updating stock in StockList', error });
+  }
+});
 
 
 
-// app.put('/api/stock/:id', async (req, res) => {
+// GET route to fetch all stocks from StockList
+app.get('/api/stocklist', async (req, res) => {
+  try {
+    const stocks = await StockList.find();
+    res.status(200).json(stocks);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching stock list', error });
+  }
+});
+
+// PATCH route to update the weight of a stock in StockList
+app.patch('/api/stocklist/:id', async (req, res) => {
+  const { id } = req.params;
+  const { takenValue } = req.body;
+
+  if (takenValue == null || takenValue <= 0) {
+    return res.status(400).json({ message: 'Taken value must be a positive number' });
+  }
+
+  try {
+    const stock = await StockList.findById(id);
+    if (!stock) {
+      return res.status(404).json({ message: 'Stock not found' });
+    }
+
+    stock.weight -= takenValue;
+    await stock.save();
+
+    res.status(200).json(stock);
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating stock weight', error });
+  }
+});
+
+
+
+
+
+// app.post('/api/reduce', async (req, res) => {
+//   const { _id, weight } = req.body;
+
 //   try {
-//     const { id } = req.params;
-//     const { weight } = req.body;
-//     const stock = await Stock.findByIdAndUpdate(id, { weight }, { new: true });
-//     res.json(stock);
-//   } catch (error) {
-//     res.status(500).send('Error updating stock');
-//   }
-// });
-
-// // Add this new route to update stock price
-// app.put('/api/stock/:id', async (req, res) => {
-//   const { id } = req.params;
-//   const { price } = req.body;
-
-//   if (price == null) {
-//     return res.status(400).json({ message: 'Price is required' });
-//   }
-
-//   try {
-//     const updatedStock = await Stock.findByIdAndUpdate(id, { price }, { new: true });
-//     if (!updatedStock) {
-//       return res.status(404).json({ message: 'Stock not found' });
+//     const stock = await Stock.findById(_id);
+//     if (stock) {
+//       stock.weight = weight;
+//       await stock.save();
+//       res.status(200).json(stock);
+//     } else {
+//       res.status(404).json({ message: 'Stock not found' });
 //     }
-//     res.status(200).json(updatedStock);
-//   } catch (error) {
-//     res.status(500).json({ message: 'Error updating stock price', error });
+//   } catch (err) {
+//     res.status(500).json({ message: err.message });
 //   }
 // });
 
